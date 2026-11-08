@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { mergeSettings, todayIn, type MeResponse, type UserSettings } from '@ognivo/shared';
+import { CURRENCIES, mergeSettings, todayIn, type MeResponse, type UserSettings } from '@ognivo/shared';
 import { prisma } from '../db.js';
 import { parse, badRequest } from '../lib/http.js';
 import type { User } from '@prisma/client';
@@ -38,7 +38,7 @@ const bool = z.boolean().optional();
 const zSettingsPatch = z
   .object({
     theme: z.enum(['light', 'dark', 'system']).optional(),
-    currency: z.enum(['RUB', 'USD', 'EUR', 'KZT']).optional(),
+    currency: z.enum(CURRENCIES).optional(),
     animations: bool,
     sections: z.object({ plan: bool, money: bool, sport: bool }).strict().optional(),
     homeBlocks: z

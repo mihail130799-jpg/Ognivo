@@ -4,7 +4,8 @@ import type { CategoryKind } from './categories';
 import type { DateStr, Repeat } from './dates';
 import type { ExerciseUnit } from './exercises';
 
-export type Currency = 'RUB' | 'USD' | 'EUR' | 'KZT';
+export const CURRENCIES = ['RUB', 'USD', 'EUR', 'KZT', 'VND'] as const;
+export type Currency = (typeof CURRENCIES)[number];
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 export const CURRENCY_SYMBOL: Record<Currency, string> = {
@@ -12,6 +13,7 @@ export const CURRENCY_SYMBOL: Record<Currency, string> = {
   USD: '$',
   EUR: '€',
   KZT: '₸',
+  VND: '₫',
 };
 
 export interface UserSettings {

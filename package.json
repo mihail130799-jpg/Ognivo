@@ -12,7 +12,8 @@
     "dev": "concurrently -n app,server -c yellow,cyan \"npm run dev -w app\" \"npm run dev -w server\"",
     "build": "npm run build -w app && npm run build -w server",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm test --workspaces --if-present"
+    "test": "npm test --workspaces --if-present",
+    "report": "node --disable-warning=ExperimentalWarning scripts/update-report.mjs"
   },
   "devDependencies": {
     "concurrently": "^10.0.7",
