@@ -1,0 +1,26 @@
+{
+  "name": "ognivo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ognivo — трекер дел, денег и тренировок в Telegram Mini App",
+  "workspaces": [
+    "shared",
+    "app",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n app,server -c yellow,cyan \"npm run dev -w app\" \"npm run dev -w server\"",
+    "build": "npm run build -w app && npm run build -w server",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "prisma@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.28.2": true
+  }
+}

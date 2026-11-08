@@ -1,0 +1,27 @@
+{
+  "name": "@ognivo/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "tsup",
+    "start": "node --env-file=.env dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@ognivo/shared": "^0.1.0",
+    "@prisma/client": "^6.19.3",
+    "fastify": "^5.12.8",
+    "grammy": "^1.46.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "prisma": "^6.19.3",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15"
+  }
+}

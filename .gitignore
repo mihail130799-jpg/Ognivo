@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+server/prisma/*.db
+server/prisma/*.db-journal
+.DS_Store
+Thumbs.db
+
+# Скриншоты исходного трекера — справочные, в репозиторий не кладём
+/*.jpg

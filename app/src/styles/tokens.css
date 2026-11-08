@@ -1,0 +1,51 @@
+/* Дизайн-токены Ognivo: мягкий тёмный минимализм (утверждённый макет design/mockup.html). */
+:root {
+  --font-text: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-display: 'Unbounded', 'Manrope', sans-serif;
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --gap: 12px;
+  --pad: 18px;
+
+  --bg: #16141a;
+  --bg-glow: rgba(242, 166, 90, 0.1);
+  --card: #201d24;
+  --card-2: #29252e;
+  --line: rgba(255, 255, 255, 0.06);
+  --text: #f3eee8;
+  --muted: #9c958f;
+  --faint: #6b6560;
+  --accent: #f2a65a;
+  --accent-ink: #2a1a0a;
+  --accent-soft: rgba(242, 166, 90, 0.14);
+  --green: #8fbf9a;
+  --green-soft: rgba(143, 191, 154, 0.14);
+  --coral: #e8857a;
+  --coral-soft: rgba(232, 133, 122, 0.14);
+  --nav: rgba(32, 29, 36, 0.86);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f6f1ea;
+  --bg-glow: rgba(242, 166, 90, 0.18);
+  --card: #fffdf9;
+  --card-2: #f0e9df;
+  --line: rgba(60, 40, 20, 0.08);
+  --text: #2b2620;
+  --muted: #857b70;
+  --faint: #b2a89c;
+  --accent: #e08a3c;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(224, 138, 60, 0.14);
+  --green: #5e9a6c;
+  --green-soft: rgba(94, 154, 108, 0.14);
+  --coral: #cf6a5e;
+  --coral-soft: rgba(207, 106, 94, 0.12);
+  --nav: rgba(255, 253, 249, 0.9);
+  --shadow: 0 10px 30px rgba(80, 50, 20, 0.12);
+  color-scheme: light;
+}

@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ognivo — макет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#16141A; --bg-glow:rgba(242,166,90,.10);
+  --card:#201D24; --card-2:#29252E; --line:rgba(255,255,255,.06);
+  --text:#F3EEE8; --muted:#9C958F; --faint:#6B6560;
+  --accent:#F2A65A; --accent-ink:#2A1A0A; --accent-soft:rgba(242,166,90,.14);
+  --green:#8FBF9A; --green-soft:rgba(143,191,154,.14);
+  --coral:#E8857A; --coral-soft:rgba(232,133,122,.14);
+  --nav:rgba(32,29,36,.86);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+:root[data-theme="light"]{
+  --bg:#F6F1EA; --bg-glow:rgba(242,166,90,.18);
+  --card:#FFFDF9; --card-2:#F0E9DF; --line:rgba(60,40,20,.08);
+  --text:#2B2620; --muted:#857B70; --faint:#B2A89C;
+  --accent:#E08A3C; --accent-ink:#fff; --accent-soft:rgba(224,138,60,.14);
+  --green:#5E9A6C; --green-soft:rgba(94,154,108,.14);
+  --coral:#CF6A5E; --coral-soft:rgba(207,106,94,.12);
+  --nav:rgba(255,253,249,.9);
+  --shadow:0 10px 30px rgba(80,50,20,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#0D0C0F}
+:root[data-theme="light"] body{background:#E4DCD0}
+body{font-family:Manrope,system-ui,sans-serif;color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.phone{width:390px;max-width:100%;height:844px;background:var(--bg);border-radius:44px;position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);border:1px solid var(--line)}
+.phone::before{content:"";position:absolute;inset:-120px -60px auto;height:320px;background:radial-gradient(closest-side,var(--bg-glow),transparent);pointer-events:none}
+.scroll{position:absolute;inset:0;overflow-y:auto;padding:22px 18px 120px;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.screen{display:none;animation:fade .35s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.eyebrow{font-size:13px;color:var(--muted);letter-spacing:.2px}
+.eyebrow b{color:var(--accent);font-weight:600}
+.icon-btn{width:40px;height:40px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted)}
+.icon-btn svg{width:20px;height:20px}
+h1{font-family:Unbounded,sans-serif;font-weight:600;font-size:30px;line-height:1.1;letter-spacing:-.5px;margin-bottom:18px}
+h1 .name{color:var(--accent)}
+h2{font-size:16px;font-weight:700}
+.sub{font-size:13px;color:var(--muted);line-height:1.45}
+
+.chips{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.chip{padding:9px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap;transition:.2s}
+.chip.on{background:var(--text);color:var(--bg);border-color:transparent}
+
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;padding:10px;border-radius:12px;font-weight:600;font-size:14px;color:var(--muted);transition:.2s}
+.seg button.on{background:var(--card-2);color:var(--text)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:12px;transition:opacity .25s}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.grid2 .card{margin:0}
+.mini-add{width:30px;height:30px;border-radius:10px;background:var(--card-2);display:grid;place-items:center;color:var(--muted);font-size:18px}
+.hidden{display:none!important}
+
+.task{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:14px;line-height:1.3}
+.check{flex:none;width:20px;height:20px;border-radius:7px;border:1.5px solid var(--faint);display:grid;place-items:center;transition:.2s;position:relative}
+.task.done .check{background:var(--green);border-color:var(--green)}
+.task.done .check::after{content:"";width:9px;height:5px;border:2px solid var(--bg);border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.task.done .t{color:var(--faint);text-decoration:line-through}
+.task .time{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.task.over .time{color:var(--coral)}
+.spark{position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle,var(--accent) 0,transparent 70%);animation:spark .6s ease-out forwards;pointer-events:none}
+@keyframes spark{from{opacity:.9;transform:scale(.4)}to{opacity:0;transform:scale(1.8)}}
+
+.workout{background:linear-gradient(160deg,var(--accent-soft),transparent 70%),var(--card)}
+.workout .big{font-family:Unbounded;font-weight:600;font-size:17px;margin:6px 0 4px}
+.pill-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:14px;font-weight:700;font-size:14px}
+.pill-btn.primary{background:var(--accent);color:var(--accent-ink)}
+.pill-btn.ghost{background:var(--card-2);color:var(--text)}
+.ex-dots{display:flex;gap:4px;margin:12px 0 14px}
+.ex-dots i{flex:1;height:4px;border-radius:2px;background:var(--card-2)}
+.ex-dots i.on{background:var(--accent)}
+
+.money-big{font-family:Unbounded;font-weight:600;font-size:28px;margin:6px 0 4px}
+.inc{color:var(--green)} .exp{color:var(--coral)}
+.catbar{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-top:14px}
+
+.lantern-row{display:flex;align-items:center;gap:14px}
+.lantern{flex:none;width:46px;height:58px;position:relative}
+.lantern svg{width:100%;height:100%}
+.progress{height:6px;border-radius:3px;background:var(--card-2);overflow:hidden;margin-top:8px}
+.progress span{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width 1s ease}
+
+.event{display:flex;gap:12px;align-items:center}
+.date-badge{flex:none;width:48px;height:52px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;line-height:1}
+.date-badge small{font-size:10px;font-weight:600;margin-top:3px;text-transform:uppercase}
+
+/* Деньги */
+.summary{background:linear-gradient(150deg,var(--accent-soft),transparent 60%),var(--card)}
+.sum-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.lbl{font-size:12px;color:var(--muted);margin-bottom:4px}
+.val{font-size:20px;font-weight:700}
+.note{font-size:12px;color:var(--faint);margin:10px 0 14px;line-height:1.4}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-row .pill-btn{padding:14px}
+.donut-wrap{display:flex;gap:16px;align-items:center}
+.donut{flex:none;width:120px;height:120px;position:relative}
+.donut .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut .c b{font-size:15px}
+.donut .c span{font-size:11px;color:var(--muted)}
+.legend{flex:1;display:flex;flex-direction:column;gap:7px;font-size:13px}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend i{width:8px;height:8px;border-radius:50%;flex:none}
+.legend span{flex:1;color:var(--muted)}
+.day-h{font-size:12px;color:var(--faint);font-weight:600;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.op{display:flex;align-items:center;gap:12px;padding:9px 0}
+.op-ic{width:40px;height:40px;border-radius:13px;background:var(--card-2);display:grid;place-items:center;font-size:19px;flex:none}
+.op-t{flex:1;min-width:0}
+.op-t b{display:block;font-size:14px;font-weight:600}
+.op-t span{font-size:12px;color:var(--muted)}
+.op-s{font-weight:700;font-size:15px}
+.goal{margin-bottom:12px}
+.goal-top{display:flex;justify-content:space-between;align-items:baseline}
+.dashed{border:1.5px dashed var(--faint);background:transparent;width:100%;padding:16px;border-radius:20px;color:var(--muted);font-weight:600}
+.placeholder{text-align:center;padding:60px 20px}
+.placeholder .big-ic{font-size:44px;margin-bottom:14px}
+
+/* навигация */
+.fab{position:absolute;right:18px;bottom:104px;width:56px;height:56px;border-radius:20px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 10px 24px rgba(242,166,90,.35);z-index:5}
+.fab svg{width:24px;height:24px}
+.nav{position:absolute;left:18px;right:18px;bottom:22px;height:66px;border-radius:24px;background:var(--nav);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;z-index:5;box-shadow:var(--shadow)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--faint);font-size:10px;font-weight:600;padding:6px 10px;transition:.2s}
+.nav button svg{width:22px;height:22px}
+.nav button.on{color:var(--accent)}
+
+/* шторка */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.3s;z-index:10}
+.overlay.open{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:30px 30px 0 0;padding:10px 18px 28px;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:11;max-height:88%;overflow-y:auto;scrollbar-width:none;border-top:1px solid var(--line)}
+.sheet.open{transform:none}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--faint);margin:0 auto 14px;opacity:.6}
+.sheet h3{font-family:Unbounded;font-weight:600;font-size:20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.amount{font-family:Unbounded;font-size:34px;font-weight:600;text-align:center;padding:14px 0 18px}
+.amount input{all:unset;width:200px;text-align:right}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.cat{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border-radius:16px;background:var(--card);border:1px solid var(--line);font-size:10.5px;color:var(--muted);text-align:center;line-height:1.15;transition:.15s}
+.cat .e{font-size:20px}
+.cat.on{border-color:var(--accent);background:var(--accent-soft);color:var(--text)}
+.field{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 16px;font-size:14px;margin-bottom:10px;display:flex;justify-content:space-between;color:var(--muted)}
+.field b{color:var(--text);font-weight:600}
+.save{width:100%;padding:16px;border-radius:18px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:16px;margin-top:6px}
+
+.theme-toggle{position:fixed;top:16px;right:16px;padding:9px 14px;border-radius:12px;background:#2A262E;color:#F3EEE8;font-size:13px;font-weight:600;z-index:50}
+:root[data-theme="light"] .theme-toggle{background:#fff;color:#2B2620}
+@media (max-width:440px){body{padding:0}.phone{border-radius:0;height:100vh;border:0}.theme-toggle{top:72px;right:18px;width:40px;height:40px;padding:0;font-size:0;border-radius:14px}.theme-toggle::first-letter{font-size:18px}}
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeBtn">☀️ Светлая тема</button>
+
+<div class="phone">
+  <div class="scroll" id="scroll">
+
+    <!-- ГЛАВНАЯ -->
+    <section class="screen active" id="s-home">
+      <div class="top">
+        <div class="eyebrow"><b>Ognivo</b> · воскресенье, 8 ноября</div>
+        <button class="icon-btn" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      </div>
+      <h1>Привет,<br><span class="name">Алекс</span> 🔥</h1>
+
+      <div class="chips" id="homeChips">
+        <button class="chip on" data-f="all">Все</button>
+        <button class="chip" data-f="tasks">Дела</button>
+        <button class="chip" data-f="money">Деньги</button>
+        <button class="chip" data-f="sport">Спорт</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card" data-k="tasks">
+          <div class="card-head"><h2>План на день</h2><button class="mini-add">+</button></div>
+          <div class="task done"><span class="check"></span><span class="t">Выпить воду утром<span class="time">08:00</span></span></div>
+          <div class="task over"><span class="check"></span><span class="t">Оплатить интернет<span class="time">просрочено</span></span></div>
+          <div class="task"><span class="check"></span><span class="t">Позвонить маме<span class="time">18:30</span></span></div>
+        </div>
+        <div class="card workout" data-k="sport">
+          <div class="sub">Тренировка</div>
+          <div class="big">Грудь и трицепс</div>
+          <div class="sub">5 упражнений · ~50 мин</div>
+          <div class="ex-dots"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+          <button class="pill-btn primary">Продолжить</button>
+        </div>
+      </div>
+
+      <div class="card" data-k="money">
+        <div class="card-head"><h2>Деньги за месяц</h2><span class="sub">Ноябрь</span></div>
+        <div class="money-big">+ 41 350 ₽</div>
+        <div class="sub"><span class="inc">Доходы 95 000 ₽</span> · <span class="exp">Расходы 53 650 ₽</span></div>
+        <div class="catbar" id="homeCatbar"></div>
+      </div>
+
+      <div class="card" data-k="money">
+        <div class="lantern-row">
+          <div class="lantern" id="lanternHome"></div>
+          <div style="flex:1">
+            <div class="card-head" style="margin:0"><h2>Копилка · Отпуск</h2><span class="sub">42%</span></div>
+            <div class="sub">42 000 из 100 000 ₽</div>
+            <div class="progress"><span style="width:42%"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-k="tasks">
+        <div class="card-head"><h2>Ближайшие события</h2><button class="mini-add">+</button></div>
+        <div class="event">
+          <div class="date-badge">8<small>ноя</small></div>
+          <div><b style="font-size:14px">Ужин с друзьями</b><div class="sub">Сегодня · 19:00</div></div>
+        </div>
+        <div class="event" style="margin-top:10px">
+          <div class="date-badge" style="background:var(--card-2);color:var(--muted)">12<small>ноя</small></div>
+          <div><b style="font-size:14px">Стоматолог</b><div class="sub">Четверг · 10:30</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ДЕНЬГИ -->
+    <section class="screen" id="s-money">
+      <div class="top">
+        <div class="eyebrow"><b>Ognivo</b></div>
+        <button class="icon-btn" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      </div>
+      <h1>Деньги</h1>
+      <div class="seg" id="moneySeg">
+        <button class="on" data-t="ops">Операции</button>
+        <button data-t="goals">Копилки</button>
+      </div>
+
+      <div id="m-ops">
+        <div class="chips" id="periodChips">
+          <button class="chip">Неделя</button>
+          <button class="chip on">Месяц</button>
+          <button class="chip">Год</button>
+          <button class="chip">Всё время</button>
+        </div>
+        <div class="card summary">
+          <div class="sum-row">
+            <div><div class="lbl">Доходы</div><div class="val inc">95 000 ₽</div></div>
+            <div><div class="lbl">Расходы</div><div class="val exp">53 650 ₽</div></div>
+          </div>
+          <div class="lbl">Разница</div>
+          <div class="money-big" style="margin:0">+ 41 350 ₽</div>
+          <div class="note">Считается только по внесённым записям и может не совпадать с остатком на карте.</div>
+          <div class="btn-row">
+            <button class="pill-btn primary" data-sheet="exp">− Расход</button>
+            <button class="pill-btn ghost" data-sheet="inc">+ Доход</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Расходы по категориям</h2></div>
+          <div class="donut-wrap">
+            <div class="donut"><svg viewBox="0 0 42 42" id="donut"></svg><div class="c"><b>53 650 ₽</b><span>за месяц</span></div></div>
+            <div class="legend" id="legend"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>История</h2>
+          <div class="day-h">Сегодня</div>
+          <div class="op"><div class="op-ic">🛒</div><div class="op-t"><b>Продукты</b><span>Пятёрочка</span></div><div class="op-s exp">− 2 340 ₽</div></div>
+          <div class="op"><div class="op-ic">🚕</div><div class="op-t"><b>Такси</b><span>Домой</span></div><div class="op-s exp">− 410 ₽</div></div>
+          <div class="day-h">7 ноября, суббота</div>
+          <div class="op"><div class="op-ic">🍽</div><div class="op-t"><b>Кафе и рестораны</b><span>Завтрак</span></div><div class="op-s exp">− 1 250 ₽</div></div>
+          <div class="op"><div class="op-ic">🧑‍💻</div><div class="op-t"><b>Подработка</b><span>Проект для клиента</span></div><div class="op-s inc">+ 15 000 ₽</div></div>
+          <div class="day-h">5 ноября, четверг</div>
+          <div class="op"><div class="op-ic">💼</div><div class="op-t"><b>Зарплата</b><span>Аванс</span></div><div class="op-s inc">+ 80 000 ₽</div></div>
+          <div class="op"><div class="op-ic">🏠</div><div class="op-t"><b>Жильё и ЖКХ</b><span>Аренда</span></div><div class="op-s exp">− 35 000 ₽</div></div>
+        </div>
+      </div>
+
+      <div id="m-goals" class="hidden">
+        <div class="card goal">
+          <div class="lantern-row">
+            <div class="lantern" data-fill="0.42"></div>
+            <div style="flex:1">
+              <div class="goal-top"><h2>Отпуск</h2><span class="sub">до 1 июня</span></div>
+              <div class="sub">42 000 из 100 000 ₽</div>
+              <div class="progress"><span style="width:42%"></span></div>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:14px"><button class="pill-btn primary">+ Пополнить</button><button class="pill-btn ghost">− Снять</button></div>
+        </div>
+        <div class="card goal">
+          <div class="lantern-row">
+            <div class="lantern" data-fill="0.8"></div>
+            <div style="flex:1">
+              <div class="goal-top"><h2>Подушка безопасности</h2><span class="sub">80%</span></div>
+              <div class="sub">120 000 из 150 000 ₽</div>
+              <div class="progress"><span style="width:80%"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card goal">
+          <div class="lantern-row">
+            <div class="lantern" data-fill="0.12"></div>
+            <div style="flex:1">
+              <div class="goal-top"><h2>Новый ноутбук</h2><span class="sub">12%</span></div>
+              <div class="sub">18 000 из 150 000 ₽</div>
+              <div class="progress"><span style="width:12%"></span></div>
+            </div>
+          </div>
+        </div>
+        <button class="dashed">+ Новая копилка</button>
+      </div>
+    </section>
+
+    <section class="screen" id="s-plan"><div class="placeholder"><div class="big-ic">🗓</div><h1 style="font-size:24px">План</h1><p class="sub">Этот экран в макет не входит.<br>Здесь будут задачи, события, привычки<br>и виды «Список / Календарь / Доска».</p></div></section>
+    <section class="screen" id="s-sport"><div class="placeholder"><div class="big-ic">🏋️</div><h1 style="font-size:24px">Спорт</h1><p class="sub">Этот экран в макет не входит.<br>Здесь будут неделя, история и упражнения.</p></div></section>
+  </div>
+
+  <button class="fab" data-sheet="exp" title="Добавить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+
+  <nav class="nav" id="nav">
+    <button class="on" data-s="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 4.5 4 8.5a4 4 0 0 1-8 0c0-1.6.8-2.8 1.6-3.6.2 1.4 1 2.1 1.6 2.1C11 7.5 11.5 5 12 3z"/><path d="M5 21h14"/></svg>Главная</button>
+    <button data-s="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M8 3v4M16 3v4M3.5 10h17M8 14.5l2 2 4-4"/></svg>План</button>
+    <button data-s="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="6" width="18" height="13" rx="3.5"/><path d="M3 10h18M16 15h1.5"/><path d="M6 6l9-3 1.5 3"/></svg>Деньги</button>
+    <button data-s="sport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Спорт</button>
+  </nav>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="sheet" id="sheet">
+    <div class="grab"></div>
+    <h3><span id="sheetTitle">Новый расход</span><button class="icon-btn" id="closeSheet" style="width:36px;height:36px">✕</button></h3>
+    <div class="seg" id="sheetSeg"><button class="on" data-k="exp">Расход</button><button data-k="inc">Доход</button></div>
+    <div class="amount"><input id="amount" inputmode="decimal" placeholder="0"> ₽</div>
+    <div class="cats" id="cats"></div>
+    <div class="field">Дата <b>Сегодня, 8 ноября</b></div>
+    <div class="field">Комментарий <b style="color:var(--faint)">необязательно</b></div>
+    <button class="save" id="saveBtn">Сохранить</button>
+  </div>
+</div>
+
+<script>
+const EXP=[["🛒","Продукты"],["🍽","Кафе и рестораны"],["🚕","Транспорт и такси"],["🚗","Авто"],["🏠","Жильё и ЖКХ"],["📱","Связь и интернет"],["💊","Здоровье"],["👕","Одежда и обувь"],["🎬","Развлечения"],["🏋️","Спорт"],["🎁","Подарки"],["📚","Образование"],["🔁","Подписки"],["📦","Другое"]];
+const INC=[["💼","Зарплата"],["🧑‍💻","Подработка"],["🎁","Подарки"],["📈","Проценты и инвестиции"],["↩️","Возвраты и кешбэк"],["📦","Другое"]];
+const SPEND=[["Жильё и ЖКХ",35000,"#F2A65A"],["Продукты",9800,"#8FBF9A"],["Кафе",4300,"#E8857A"],["Транспорт",2650,"#9DA8D6"],["Другое",1900,"#6B6560"]];
+const total=SPEND.reduce((s,x)=>s+x[1],0);
+const fmt=n=>n.toLocaleString("ru-RU")+" ₽";
+
+// donut + legend + home bar
+(function(){
+  const svg=document.getElementById("donut");const r=15.915;let off=25;
+  let h=`<circle cx="21" cy="21" r="${r}" fill="none" stroke="var(--card-2)" stroke-width="5"/>`;
+  SPEND.forEach(([n,v,c])=>{const p=v/total*100;h+=`<circle cx="21" cy="21" r="${r}" fill="none" stroke="${c}" stroke-width="5" stroke-dasharray="${Math.max(p-1.2,0.5)} ${100-Math.max(p-1.2,0.5)}" stroke-dashoffset="${off}" stroke-linecap="round"/>`;off-=p;});
+  svg.innerHTML=h;
+  document.getElementById("legend").innerHTML=SPEND.map(([n,v,c])=>`<div><i style="background:${c}"></i><span>${n}</span><b>${Math.round(v/total*100)}%</b></div>`).join("");
+  document.getElementById("homeCatbar").innerHTML=SPEND.map(([n,v,c])=>`<i style="flex:${v};background:${c}"></i>`).join("");
+})();
+
+// фонарик-копилка
+function lantern(el,fill){
+  const id="g"+Math.random().toString(36).slice(2,7);const top=14+38*(1-fill);
+  el.innerHTML=`<svg viewBox="0 0 46 58"><defs><clipPath id="${id}"><rect x="9" y="14" width="28" height="38" rx="9"/></clipPath><linearGradient id="${id}f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD39A"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs>
+  <path d="M17 8h12M23 3v5" stroke="var(--faint)" stroke-width="2" stroke-linecap="round"/>
+  <rect x="9" y="14" width="28" height="38" rx="9" fill="var(--card-2)"/>
+  <g clip-path="url(#${id})"><rect x="0" y="${top}" width="46" height="60" fill="url(#${id}f)" opacity=".9"><animate attributeName="y" from="52" to="${top}" dur="1.2s" fill="freeze"/></rect></g>
+  <rect x="9" y="14" width="28" height="38" rx="9" fill="none" stroke="var(--faint)" stroke-width="1.5"/>
+  <path d="M23 30c1.2 2 2.6 3 2.6 5.2a2.6 2.6 0 0 1-5.2 0c0-1 .6-1.8 1.1-2.3.1.8.6 1.3 1 1.3.3-1.6.3-2.8.5-4.2z" fill="#fff" opacity=".85"/>
+  <rect x="13" y="52" width="20" height="4" rx="2" fill="var(--faint)"/></svg>`;
+}
+lantern(document.getElementById("lanternHome"),.42);
+document.querySelectorAll(".lantern[data-fill]").forEach(l=>lantern(l,+l.dataset.fill));
+
+// навигация
+const scroll=document.getElementById("scroll");
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="s-"+b.dataset.s));
+  scroll.scrollTop=0;
+});
+
+// фильтры на главной
+document.querySelectorAll("#homeChips .chip").forEach(c=>c.onclick=()=>{
+  document.querySelectorAll("#homeChips .chip").forEach(x=>x.classList.toggle("on",x===c));
+  const f=c.dataset.f;
+  document.querySelectorAll("#s-home [data-k]").forEach(card=>card.classList.toggle("hidden",f!=="all"&&card.dataset.k!==f));
+  const g=document.querySelector("#s-home .grid2");g.style.gridTemplateColumns=f==="all"?"1fr 1fr":"1fr";
+});
+
+// задачи — отметка с «искрой»
+document.querySelectorAll(".task").forEach(t=>t.onclick=()=>{
+  t.classList.toggle("done");
+  if(t.classList.contains("done")){const s=document.createElement("span");s.className="spark";t.querySelector(".check").appendChild(s);setTimeout(()=>s.remove(),650);}
+});
+
+// периоды и вкладки денег
+document.querySelectorAll("#periodChips .chip").forEach(c=>c.onclick=()=>document.querySelectorAll("#periodChips .chip").forEach(x=>x.classList.toggle("on",x===c)));
+document.querySelectorAll("#moneySeg button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#moneySeg button").forEach(x=>x.classList.toggle("on",x===b));
+  document.getElementById("m-ops").classList.toggle("hidden",b.dataset.t!=="ops");
+  document.getElementById("m-goals").classList.toggle("hidden",b.dataset.t!=="goals");
+});
+
+// шторка добавления
+const sheet=document.getElementById("sheet"),overlay=document.getElementById("overlay");
+function renderCats(kind){
+  const list=kind==="inc"?INC:EXP;
+  document.getElementById("cats").innerHTML=list.map(([e,n],i)=>`<button class="cat${i===0?" on":""}"><span class="e">${e}</span>${n}</button>`).join("");
+  document.querySelectorAll("#cats .cat").forEach(c=>c.onclick=()=>document.querySelectorAll("#cats .cat").forEach(x=>x.classList.toggle("on",x===c)));
+  document.getElementById("sheetTitle").textContent=kind==="inc"?"Новый доход":"Новый расход";
+  document.querySelectorAll("#sheetSeg button").forEach(x=>x.classList.toggle("on",x.dataset.k===kind));
+}
+function openSheet(kind){renderCats(kind);sheet.classList.add("open");overlay.classList.add("open");}
+function closeSheet(){sheet.classList.remove("open");overlay.classList.remove("open");}
+document.querySelectorAll("[data-sheet]").forEach(b=>b.onclick=()=>openSheet(b.dataset.sheet));
+document.querySelectorAll("#sheetSeg button").forEach(b=>b.onclick=()=>renderCats(b.dataset.k));
+overlay.onclick=closeSheet;document.getElementById("closeSheet").onclick=closeSheet;document.getElementById("saveBtn").onclick=closeSheet;
+
+// тема
+const btn=document.getElementById("themeBtn");
+btn.onclick=()=>{const l=document.documentElement.dataset.theme==="light";document.documentElement.dataset.theme=l?"":"light";btn.textContent=l?"☀️ Светлая тема":"🌙 Тёмная тема";};
+</script>
+</body>
+</html>

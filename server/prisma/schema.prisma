@@ -1,0 +1,22 @@
+// Схема базы Ognivo. На этапе каркаса — только пользователь;
+// задачи, события, привычки, операции, копилки и тренировки добавятся на этапе 3.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  telegramId String   @unique
+  name       String
+  username   String?
+  /// Настройки пользователя (JSON-строка формата UserSettings из @ognivo/shared)
+  settings   String   @default("{}")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
