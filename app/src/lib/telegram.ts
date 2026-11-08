@@ -17,15 +17,23 @@ interface TgWebApp {
   setHeaderColor(color: string): void;
   setBackgroundColor(color: string): void;
   onEvent(event: 'themeChanged', cb: () => void): void;
+  onEvent(event: 'homeScreenAdded', cb: () => void): void;
   showConfirm?(message: string, cb: (ok: boolean) => void): void;
   openLink?(url: string): void;
   requestWriteAccess?(cb?: (granted: boolean) => void): void;
   isVersionAtLeast?(version: string): boolean;
+  // Bot API 8.0+: ярлык мини-приложения на домашнем экране
+  addToHomeScreen?(): void;
+  checkHomeScreenStatus?(cb: (status: HomeScreenStatus) => void): void;
+  offEvent?(event: string, cb: (...args: never[]) => void): void;
   HapticFeedback?: {
     impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;
     notificationOccurred(type: 'error' | 'success' | 'warning'): void;
   };
 }
+
+/** unsupported — клиент не умеет; unknown — нельзя узнать; added — уже есть; missed — можно добавить */
+export type HomeScreenStatus = 'unsupported' | 'unknown' | 'added' | 'missed';
 
 declare global {
   interface Window {
@@ -80,6 +88,37 @@ export function openLink(url: string): void {
 export function requestWriteAccess(): Promise<boolean> {
   if (!isInTelegram || !tg?.requestWriteAccess || !tg.isVersionAtLeast?.('6.9')) return Promise.resolve(true);
   return new Promise((resolve) => tg!.requestWriteAccess!((granted) => resolve(granted)));
+}
+
+/** Умеет ли клиент Telegram добавлять ярлык на домашний экран (iOS/Android, Telegram 11.5+). */
+export function canAddToHomeScreen(): boolean {
+  return isInTelegram && !!tg?.addToHomeScreen && !!tg.isVersionAtLeast?.('8.0');
+}
+
+/** Есть ли уже ярлык на домашнем экране. */
+export function checkHomeScreenStatus(): Promise<HomeScreenStatus> {
+  if (!canAddToHomeScreen() || !tg?.checkHomeScreenStatus) return Promise.resolve('unsupported');
+  return new Promise((resolve) => {
+    // На некоторых клиентах колбэк не вызывается — не ждём вечно
+    const t = setTimeout(() => resolve('unknown'), 3000);
+    tg!.checkHomeScreenStatus!((s) => {
+      clearTimeout(t);
+      resolve(s);
+    });
+  });
+}
+
+/** Показать системный диалог «Добавить на домашний экран». onAdded — если пользователь подтвердил. */
+export function addToHomeScreen(onAdded?: () => void): void {
+  if (!canAddToHomeScreen()) return;
+  if (onAdded) {
+    const handler = () => {
+      tg!.offEvent?.('homeScreenAdded', handler);
+      onAdded();
+    };
+    tg!.onEvent('homeScreenAdded', handler);
+  }
+  tg!.addToHomeScreen!();
 }
 
 export function haptic(kind: 'tap' | 'success' = 'tap'): void {

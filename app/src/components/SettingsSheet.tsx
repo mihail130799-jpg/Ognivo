@@ -4,6 +4,7 @@ import { CURRENCY_SYMBOL, type Currency, type DeepPartial, type UserSettings } f
 import { Segmented, Sheet, Toggle, toast } from './ui';
 import { useMe, useUpdateMe } from '../lib/queries';
 import { api, ApiError } from '../lib/api';
+import { useHomeScreen } from '../lib/useHomeScreen';
 import { confirmAction, getInitData, isInTelegram, openLink, requestWriteAccess } from '../lib/telegram';
 import './SettingsSheet.css';
 
@@ -41,6 +42,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const [name, setName] = useState(me.data?.name ?? '');
   const [feedback, setFeedback] = useState<'bug' | 'idea' | null>(null);
+  const home = useHomeScreen();
   const [, tick] = useState(0);
 
   // Обновляем подпись «синхронизировано N мин назад»
@@ -189,6 +191,23 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           </button>
         </div>
       </Section>
+
+      {home.status !== 'unsupported' && home.status !== 'loading' && (
+        <Section title="Домашний экран">
+          {home.status === 'added' ? (
+            <p className="set-text muted" style={{ marginBottom: 0 }}>
+              ✓ Ognivo уже на домашнем экране — открывается одним касанием, как обычное приложение.
+            </p>
+          ) : (
+            <>
+              <p className="set-text muted">Иконка Ognivo на экране телефона — открывается сразу, без поиска бота в чатах.</p>
+              <button className="btn primary" onClick={home.add}>
+                📲 Добавить на домашний экран
+              </button>
+            </>
+          )}
+        </Section>
+      )}
 
       <Section title="Обратная связь">
         <p className="set-text muted">Нашли ошибку или есть идея? Напишите нам — ответим в чате с ботом.</p>

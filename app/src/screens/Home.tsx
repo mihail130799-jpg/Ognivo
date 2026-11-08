@@ -8,6 +8,7 @@ import { useMoneySummary, useSavings, useTasks, useToggleTask, useWorkouts } fro
 import { isDoneOn, isOverdue, occurrences, tasksForDay } from '../lib/tasks';
 import { capitalize, dayMonth, dayNum, money, monthName, monthShort, plural, relativeDay, weekdayLong } from '../lib/format';
 import { categoryColor } from '../lib/colors';
+import { useHomeScreen, useHomeScreenHint } from '../lib/useHomeScreen';
 import './Home.css';
 
 type Filter = 'all' | 'tasks' | 'money' | 'sport';
@@ -48,6 +49,8 @@ export function Home() {
 
       {filters.length > 2 && <Chips options={filters} value={filter} onChange={setFilter} />}
 
+      <HomeScreenHint />
+
       {(showTasks || showWorkout) && (
         <div className={`grid2${showTasks && showWorkout ? '' : ' single'}`}>
           {showTasks && <DayPlanCard />}
@@ -62,6 +65,36 @@ export function Home() {
         <div className="card empty">Все блоки на главной скрыты. Включите нужные в настройках.</div>
       )}
     </>
+  );
+}
+
+// ── Подсказка «на домашний экран» (один раз, можно закрыть) ──
+
+function HomeScreenHint() {
+  const home = useHomeScreen();
+  const hint = useHomeScreenHint();
+  // 'unknown' не показываем на главной: не навязываем, если клиент не говорит, есть ли ярлык
+  if (hint.dismissed || home.status !== 'missed') return null;
+  return (
+    <div className="card home-row home-hint">
+      <span className="home-hint-ic" aria-hidden="true">
+        📲
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="card-title" style={{ fontSize: 15 }}>
+          Ognivo на домашний экран
+        </div>
+        <p className="muted">Открывайте одним касанием, как обычное приложение.</p>
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          <button className="btn primary" onClick={home.add}>
+            Добавить
+          </button>
+          <button className="btn ghost" onClick={hint.dismiss}>
+            Не сейчас
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
