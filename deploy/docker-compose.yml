@@ -1,0 +1,23 @@
+# Ognivo на VPS. Лежит в /opt/ognivo; код — в /opt/ognivo/src.
+#   cd /opt/ognivo && docker compose up -d --build
+# Наружу контейнер не публикуется: только 127.0.0.1:3100, HTTPS даёт общий Caddy (firefly_tg_caddy).
+services:
+  ognivo:
+    build: ./src
+    image: ognivo:latest
+    container_name: ognivo
+    restart: always
+    env_file: .env
+    ports:
+      - "127.0.0.1:3100:3000"
+    volumes:
+      - ognivo_data:/data
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  ognivo_data:

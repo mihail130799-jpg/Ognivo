@@ -1,0 +1,11 @@
+# Блоки для Ognivo — добавляются в конец /opt/firefly-tg-proxy/Caddyfile (общий Caddy на сервере).
+# 443 занят xray, поэтому HTTPS на 9443; сертификат Let's Encrypt — через HTTP-01 на порту 80.
+
+23-27-246-207.sslip.io:9443 {
+    encode gzip
+    reverse_proxy 127.0.0.1:3100
+}
+
+http://23-27-246-207.sslip.io {
+    respond 404
+}

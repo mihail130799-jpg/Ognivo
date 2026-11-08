@@ -1,0 +1,14 @@
+# В образ не попадают секреты, локальные базы и лишнее
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!server/.env.example
+**/*.db
+**/*.db-journal
+secrets
+.tools
+.git
+.claude
+design
+*.jpg
