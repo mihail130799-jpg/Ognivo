@@ -1,0 +1,392 @@
+/* ── Сводка дня ── */
+.plan-summary {
+  background: radial-gradient(120% 90% at 100% 0%, var(--accent-soft), transparent 60%), var(--card);
+}
+.plan-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.plan-stats .stat {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.plan-stats .stat b {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+}
+.plan-stats .stat span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.ring-num {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.week-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.week-nav {
+  flex: none;
+  width: 26px;
+  height: 40px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+}
+.week-day {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0 7px;
+  border-radius: 16px;
+  background: var(--card-2);
+  transition: background 0.2s, color 0.2s;
+}
+.week-day span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.week-day b {
+  font-size: 16px;
+  font-weight: 700;
+}
+.week-day.today b {
+  color: var(--accent);
+}
+.week-day.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.week-day.on span,
+.week-day.on b {
+  color: var(--accent-ink);
+}
+.week-day .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+.week-day .dot.empty {
+  opacity: 0;
+}
+
+/* ── Привычки ── */
+.plan-h {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+}
+.habit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.habit + .habit {
+  border-top: 1px solid var(--line);
+}
+.habit-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+}
+.habit-emoji {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--card-2);
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+}
+.habit-week {
+  display: flex;
+  gap: 3px;
+}
+.habit-week i {
+  width: 6px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--card-2);
+}
+.habit-week i.on {
+  background: var(--green);
+}
+.habit-week i.cur {
+  outline: 1.5px solid var(--faint);
+  outline-offset: 1px;
+}
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+.emoji-btn {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: 19px;
+}
+.emoji-btn.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ── Переключатель видов ── */
+.plan-views {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.plan-views .seg {
+  flex: 1;
+}
+.plan-add {
+  flex: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: grid;
+  place-items: center;
+}
+
+/* ── Строки задач ── */
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.task-row + .task-row {
+  border-top: 1px solid var(--line);
+}
+.task-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+.task-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.task-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.task-meta.over {
+  color: var(--coral);
+}
+.task-comment {
+  font-size: 12px;
+  color: var(--faint);
+  margin-top: 3px;
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.task-row.done .task-title {
+  color: var(--faint);
+  text-decoration: line-through;
+}
+.event-mark {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 12px;
+}
+.plan-empty {
+  width: 100%;
+  border-style: dashed;
+  border-color: var(--faint);
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 28px 18px;
+}
+.plan-empty-ic {
+  display: block;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* ── Календарь ── */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-wd {
+  text-align: center;
+  font-size: 11px;
+  color: var(--faint);
+  padding-bottom: 4px;
+}
+.cal-day {
+  aspect-ratio: 1 / 1.05;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.cal-day.out {
+  color: var(--faint);
+}
+.cal-day.today {
+  color: var(--accent);
+}
+.cal-day.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.cal-dots {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+}
+.cal-dots i,
+.cal-legend i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.ev {
+  background: var(--accent);
+}
+.tk {
+  background: var(--muted);
+}
+.dn {
+  background: var(--green);
+}
+.cal-day.on .cal-dots i {
+  background: var(--accent-ink);
+}
+.cal-legend {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ── Доска ── */
+.board {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin: 0 calc(-1 * var(--pad)) var(--gap);
+  padding: 0 var(--pad) 4px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--pad);
+  scrollbar-width: none;
+}
+.board::-webkit-scrollbar {
+  display: none;
+}
+.board-col {
+  flex: none;
+  width: 78%;
+  max-width: 300px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  scroll-snap-align: start;
+  align-self: flex-start;
+}
+.board-head {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.board-head::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.col-in_progress .board-head::before {
+  background: var(--accent);
+}
+.col-done .board-head::before {
+  background: var(--green);
+}
+.board-head span {
+  color: var(--faint);
+  font-weight: 600;
+}
+.board-empty {
+  font-size: 13px;
+  color: var(--faint);
+  padding: 8px 0;
+}
+.board-card {
+  background: var(--card-2);
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.col-done .board-card .task-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.board-move {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+}
+.board-move button {
+  width: 34px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 15px;
+}

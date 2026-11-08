@@ -103,8 +103,67 @@ export function useToggleTask() {
   });
 }
 
+/** Смена статуса задачи (для доски). */
+export function useSetTaskStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: TaskDto['status'] }) =>
+      api<TaskDto>(`/tasks/${id}`, { method: 'PATCH', ...json({ status }) }),
+    onMutate: async ({ id, status }) => {
+      await qc.cancelQueries({ queryKey: ['tasks'] });
+      const prev = qc.getQueryData<TaskDto[]>(['tasks']);
+      qc.setQueryData<TaskDto[]>(['tasks'], (list) => list?.map((t) => (t.id === id ? { ...t, status } : t)));
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => ctx?.prev && qc.setQueryData(['tasks'], ctx.prev),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  });
+}
+
 export function useHabits(range: Range) {
   return useQuery({ queryKey: ['habits', range], queryFn: () => api<HabitDto[]>(`/habits${qs(range)}`) });
+}
+
+export function useSaveHabit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: { id?: string; title: string; emoji: string }) =>
+      id
+        ? api(`/habits/${id}`, { method: 'PATCH', ...json(body) })
+        : api('/habits', { method: 'POST', ...json(body) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['habits'] }),
+  });
+}
+
+export function useDeleteHabit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/habits/${id}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['habits'] }),
+  });
+}
+
+/** Отметка привычки на дату — интерфейс обновляется сразу. */
+export function useToggleHabit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, date }: { id: string; date: string }) =>
+      api<{ checked: boolean }>(`/habits/${id}/check`, { method: 'POST', ...json({ date }) }),
+    onMutate: async ({ id, date }) => {
+      await qc.cancelQueries({ queryKey: ['habits'] });
+      const snapshots = qc.getQueriesData<HabitDto[]>({ queryKey: ['habits'] });
+      qc.setQueriesData<HabitDto[]>({ queryKey: ['habits'] }, (list) =>
+        list?.map((h) =>
+          h.id !== id
+            ? h
+            : { ...h, checks: h.checks.includes(date) ? h.checks.filter((d) => d !== date) : [...h.checks, date] },
+        ),
+      );
+      return { snapshots };
+    },
+    onError: (_e, _v, ctx) => ctx?.snapshots.forEach(([key, data]) => qc.setQueryData(key, data)),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['habits'] }),
+  });
 }
 
 // ── Деньги ──

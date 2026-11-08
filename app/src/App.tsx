@@ -6,6 +6,7 @@ import { Sheet, ToastHost } from './components/ui';
 import { TaskSheet } from './components/TaskSheet';
 import { TransactionSheet } from './components/TransactionSheet';
 import { Home } from './screens/Home';
+import { Plan } from './screens/Plan';
 import { AppContext, useApp, type AppApi, type MoneyView } from './lib/appContext';
 import { useMe, useUpdateMe } from './lib/queries';
 import { ApiError } from './lib/api';
@@ -114,6 +115,8 @@ export function App() {
       <main className="page" key={activeTab}>
         {activeTab === 'home' ? (
           <Home />
+        ) : activeTab === 'plan' ? (
+          <Plan />
         ) : (
           <>
             <PageHeader title={TITLES[activeTab]} onSettings={ctx.openSettings} />
