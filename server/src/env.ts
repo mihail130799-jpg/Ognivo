@@ -6,6 +6,7 @@ const schema = z.object({
   API_PORT: z.coerce.number().int().positive().default(3000),
   BOT_TOKEN: z.string().default(''),
   WEBAPP_URL: z.string().default(''),
+  FEEDBACK_CHAT_ID: z.string().default(''),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL не задан'),
   DEV_AUTH_BYPASS: z
     .string()

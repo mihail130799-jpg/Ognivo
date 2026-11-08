@@ -32,6 +32,7 @@ model User {
   savingsGoals SavingsGoal[]
   exercises    Exercise[]
   workouts     Workout[]
+  feedback     Feedback[]
 }
 
 /// Задача или событие из раздела «План»
@@ -202,4 +203,15 @@ model WorkoutSet {
   weight            Float?
   durationSec       Int?
   done              Boolean         @default(false)
+}
+
+/// Сообщения обратной связи («Сообщить о баге», «Предложить идею»)
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 'bug' | 'idea'
+  kind      String
+  text      String
+  createdAt DateTime @default(now())
 }

@@ -10,6 +10,7 @@ import { Plan } from './screens/Plan';
 import { Money } from './screens/Money';
 import { Sport } from './screens/Sport';
 import { WorkoutSheet } from './components/WorkoutSheet';
+import { SettingsSheet } from './components/SettingsSheet';
 import { AppContext, useApp, type AppApi, type MoneyView } from './lib/appContext';
 import { useMe, useUpdateMe, useWorkouts } from './lib/queries';
 import { ApiError } from './lib/api';
@@ -138,11 +139,7 @@ export function App() {
       {sheet?.type === 'tx' && <TransactionSheet kind={sheet.kind} tx={sheet.tx} onClose={close} />}
       {sheet?.type === 'workout' && <WorkoutSheet date={sheet.date} workout={sheet.workout} onClose={close} />}
       {sheet?.type === 'quick' && <QuickAdd onPick={setSheet} />}
-      {sheet?.type === 'settings' && (
-        <Sheet title="Настройки" onClose={close}>
-          <p className="muted">Экран настроек появится на последнем шаге этапа 4.</p>
-        </Sheet>
-      )}
+      {sheet?.type === 'settings' && <SettingsSheet onClose={close} />}
       <ToastHost />
     </AppContext.Provider>
   );

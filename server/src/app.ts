@@ -8,6 +8,7 @@ import { habitRoutes } from './routes/habits.js';
 import { moneyRoutes } from './routes/money.js';
 import { savingsRoutes } from './routes/savings.js';
 import { sportRoutes } from './routes/sport.js';
+import { dataRoutes } from './routes/data.js';
 
 export function buildApp(opts: { logger?: boolean } = {}): FastifyInstance {
   const app = Fastify({
@@ -34,6 +35,7 @@ export function buildApp(opts: { logger?: boolean } = {}): FastifyInstance {
       await scope.register(moneyRoutes);
       await scope.register(savingsRoutes);
       await scope.register(sportRoutes);
+      await scope.register(dataRoutes);
     },
     { prefix: '/api' },
   );

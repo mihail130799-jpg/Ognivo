@@ -18,6 +18,9 @@ interface TgWebApp {
   setBackgroundColor(color: string): void;
   onEvent(event: 'themeChanged', cb: () => void): void;
   showConfirm?(message: string, cb: (ok: boolean) => void): void;
+  openLink?(url: string): void;
+  requestWriteAccess?(cb?: (granted: boolean) => void): void;
+  isVersionAtLeast?(version: string): boolean;
   HapticFeedback?: {
     impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;
     notificationOccurred(type: 'error' | 'success' | 'warning'): void;
@@ -61,6 +64,22 @@ export function confirmAction(message: string): Promise<boolean> {
     return new Promise((resolve) => tg!.showConfirm!(message, resolve));
   }
   return Promise.resolve(window.confirm(message));
+}
+
+/** Открыть ссылку: в Telegram — встроенным браузером, иначе в новой вкладке. */
+export function openLink(url: string): void {
+  const abs = new URL(url, location.href).href;
+  if (isInTelegram && tg?.openLink) tg.openLink(abs);
+  else window.open(abs, '_blank', 'noopener');
+}
+
+/**
+ * Разрешение боту писать пользователю (нужно для напоминаний и выгрузки).
+ * Вне Telegram или в старых клиентах просто возвращает true.
+ */
+export function requestWriteAccess(): Promise<boolean> {
+  if (!isInTelegram || !tg?.requestWriteAccess || !tg.isVersionAtLeast?.('6.9')) return Promise.resolve(true);
+  return new Promise((resolve) => tg!.requestWriteAccess!((granted) => resolve(granted)));
 }
 
 export function haptic(kind: 'tap' | 'success' = 'tap'): void {

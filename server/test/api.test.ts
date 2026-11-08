@@ -271,6 +271,16 @@ test('чужие данные недоступны', async () => {
   assert.equal((await call('GET', '/transactions/summary', undefined, BOB)).body.income, 0);
 });
 
+// ── Обратная связь ──
+
+test('обратная связь: сохраняется, проверяется', async () => {
+  assert.equal((await call('POST', '/feedback', { kind: 'bug', text: 'Не открывается календарь' })).status, 201);
+  assert.equal((await call('POST', '/feedback', { kind: 'idea', text: 'ок' })).status, 400, 'слишком коротко');
+  assert.equal((await call('POST', '/feedback', { kind: 'spam', text: 'Привет всем' })).status, 400);
+  const { prisma } = await import('../src/db.js');
+  assert.equal(await prisma.feedback.count(), 1);
+});
+
 // ── Данные ──
 
 test('экспорт и удаление всех данных', async () => {
