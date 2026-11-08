@@ -124,3 +124,17 @@ textarea {
   font-size: 13px;
   line-height: 1.45;
 }
+
+.splash {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+}

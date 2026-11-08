@@ -17,6 +17,7 @@ interface TgWebApp {
   setHeaderColor(color: string): void;
   setBackgroundColor(color: string): void;
   onEvent(event: 'themeChanged', cb: () => void): void;
+  showConfirm?(message: string, cb: (ok: boolean) => void): void;
   HapticFeedback?: {
     impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;
     notificationOccurred(type: 'error' | 'success' | 'warning'): void;
@@ -49,8 +50,17 @@ export function getTelegramName(): string | null {
 }
 
 export function systemColorScheme(): 'light' | 'dark' {
-  if (tg?.colorScheme) return tg.colorScheme;
+  // Вне Telegram скрипт SDK всё равно создаёт WebApp с colorScheme = 'light' — ему не верим
+  if (isInTelegram && tg?.colorScheme) return tg.colorScheme;
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+/** Подтверждение действия: в Telegram — нативный диалог, в браузере — window.confirm. */
+export function confirmAction(message: string): Promise<boolean> {
+  if (isInTelegram && tg?.showConfirm) {
+    return new Promise((resolve) => tg!.showConfirm!(message, resolve));
+  }
+  return Promise.resolve(window.confirm(message));
 }
 
 export function haptic(kind: 'tap' | 'success' = 'tap'): void {
