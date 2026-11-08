@@ -9,7 +9,8 @@
     "start": "node --env-file=.env dist/index.js",
     "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "test": "tsx --test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@ognivo/shared": "^0.1.0",

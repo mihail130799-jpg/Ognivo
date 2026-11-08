@@ -1,30 +1,9 @@
-﻿import Fastify from 'fastify';
-import { DEFAULT_SETTINGS, type MeResponse, type UserSettings } from '@ognivo/shared';
-import { env } from './env.js';
+﻿import { env } from './env.js';
 import { prisma } from './db.js';
-import { authPlugin } from './plugins/auth.js';
+import { buildApp } from './app.js';
 import { createBot } from './bot.js';
 
-const app = Fastify({ logger: { level: env.NODE_ENV === 'development' ? 'info' : 'warn' } });
-
-app.get('/api/health', async () => ({ ok: true }));
-
-// Защищённые маршруты (нужна подпись Telegram).
-app.register(async (scope) => {
-  await authPlugin(scope);
-
-  scope.get('/api/me', async (req): Promise<MeResponse> => {
-    const stored = JSON.parse(req.user.settings || '{}') as Partial<UserSettings>;
-    return {
-      id: req.user.id,
-      telegramId: req.user.telegramId,
-      name: req.user.name,
-      username: req.user.username,
-      settings: { ...DEFAULT_SETTINGS, ...stored },
-    };
-  });
-});
-
+const app = buildApp();
 const bot = createBot();
 
 async function main() {

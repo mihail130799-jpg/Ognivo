@@ -1,5 +1,9 @@
-// Схема базы Ognivo. На этапе каркаса — только пользователь;
-// задачи, события, привычки, операции, копилки и тренировки добавятся на этапе 3.
+// Схема базы Ognivo.
+// Соглашения:
+//  - даты дней хранятся строкой 'YYYY-MM-DD' (в часовом поясе пользователя), время — 'HH:MM';
+//    такие строки корректно сравниваются и сортируются как текст;
+//  - денежные суммы — целые числа в копейках/центах (minor units);
+//  - перечисления — строки, допустимые значения проверяются в API (zod).
 
 generator client {
   provider = "prisma-client-js"
@@ -15,8 +19,187 @@ model User {
   telegramId String   @unique
   name       String
   username   String?
-  /// Настройки пользователя (JSON-строка формата UserSettings из @ognivo/shared)
+  /// IANA-часовой пояс, например 'Europe/Moscow' — нужен для «сегодня» и напоминаний
+  timezone   String   @default("Europe/Moscow")
+  /// Настройки (JSON формата UserSettings из @ognivo/shared)
   settings   String   @default("{}")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  tasks        Task[]
+  habits       Habit[]
+  transactions Transaction[]
+  savingsGoals SavingsGoal[]
+  exercises    Exercise[]
+  workouts     Workout[]
+}
+
+/// Задача или событие из раздела «План»
+model Task {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 'task' | 'event'
+  kind       String    @default("task")
+  title      String
+  /// null — «без даты»
+  date       String?
+  time       String?
+  /// 'none' | 'day' | 'week' | 'month'
+  repeat     String    @default("none")
+  /// 'none' | 'ontime' | '15m' | '1h' | '1d'
+  remind     String    @default("none")
+  /// 'planned' | 'in_progress' | 'done' (для неповторяющихся)
+  status     String    @default("planned")
+  comment    String    @default("")
+  doneAt     DateTime?
+  /// Когда отправлено последнее напоминание (этап 5)
+  remindedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  /// Отметки выполнения повторяющихся задач по датам
+  completions TaskCompletion[]
+
+  @@index([userId, date])
+}
+
+model TaskCompletion {
+  id     String @id @default(cuid())
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  date   String
+
+  @@unique([taskId, date])
+}
+
+/// Ежедневная привычка (вода, сон, витамины…)
+model Habit {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  emoji     String       @default("✨")
+  sortOrder Int          @default(0)
+  archived  Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  checks    HabitCheck[]
+
+  @@index([userId])
+}
+
+model HabitCheck {
+  id      String @id @default(cuid())
+  habitId String
+  habit   Habit  @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  date    String
+
+  @@unique([habitId, date])
+}
+
+/// Доход или расход
+model Transaction {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 'expense' | 'income'
+  kind       String
+  /// Сумма в копейках, всегда > 0
+  amount     BigInt
+  /// id из справочника категорий (@ognivo/shared)
+  categoryId String
+  date       String
+  comment    String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+/// Копилка под цель
+model SavingsGoal {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  emoji     String        @default("🏮")
+  /// Цель в копейках
+  target    BigInt
+  deadline  String?
+  archived  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  moves     SavingsMove[]
+
+  @@index([userId])
+}
+
+/// Пополнение (+) или снятие (−) из копилки
+model SavingsMove {
+  id        String      @id @default(cuid())
+  goalId    String
+  goal      SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  amount    BigInt
+  date      String
+  comment   String      @default("")
+  createdAt DateTime    @default(now())
+
+  @@index([goalId])
+}
+
+/// Пользовательское упражнение (встроенный справочник — в @ognivo/shared)
+model Exercise {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  /// группа мышц: 'chest' | 'back' | 'legs' | 'shoulders' | 'arms' | 'core' | 'cardio' | 'other'
+  group     String   @default("other")
+  /// 'reps' — повторы и вес, 'time' — длительность
+  unit      String   @default("reps")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Тренировка на конкретный день
+model Workout {
+  id         String            @id @default(cuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
+  date       String
+  /// 'planned' | 'done'
+  status     String            @default("planned")
+  note       String            @default("")
+  finishedAt DateTime?
+  remindedAt DateTime?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  exercises  WorkoutExercise[]
+
+  @@index([userId, date])
+}
+
+model WorkoutExercise {
+  id         String       @id @default(cuid())
+  workoutId  String
+  workout    Workout      @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  /// 'b:<id>' — встроенное упражнение, иначе id из таблицы Exercise
+  exerciseId String
+  /// Название на момент добавления (чтобы история не менялась при переименовании)
+  title      String
+  unit       String       @default("reps")
+  sortOrder  Int          @default(0)
+  sets       WorkoutSet[]
+}
+
+model WorkoutSet {
+  id                String          @id @default(cuid())
+  workoutExerciseId String
+  workoutExercise   WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+  sortOrder         Int             @default(0)
+  reps              Int?
+  /// Вес в кг
+  weight            Float?
+  durationSec       Int?
+  done              Boolean         @default(false)
 }
