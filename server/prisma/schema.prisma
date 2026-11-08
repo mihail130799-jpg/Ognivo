@@ -33,6 +33,7 @@ model User {
   exercises    Exercise[]
   workouts     Workout[]
   feedback     Feedback[]
+  reminderLogs ReminderLog[]
 }
 
 /// Задача или событие из раздела «План»
@@ -213,5 +214,21 @@ model Feedback {
   /// 'bug' | 'idea'
   kind      String
   text      String
+  /// id пересланного разработчику сообщения — ответ на него уйдёт пользователю
+  adminMessageId Int?
   createdAt DateTime @default(now())
+}
+
+/// Журнал отправленных напоминаний — чтобы не присылать одно и то же дважды
+model ReminderLog {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Ключ вхождения, например 'task:<id>:2026-11-08'
+  key    String
+  sentAt DateTime @default(now())
+  /// Текст ошибки, если Telegram не принял сообщение
+  error  String?
+
+  @@unique([userId, key])
 }

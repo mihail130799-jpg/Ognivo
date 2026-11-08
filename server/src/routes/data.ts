@@ -79,13 +79,19 @@ export async function dataRoutes(app: FastifyInstance) {
   /** Обратная связь: сохраняем и, если настроено, пересылаем разработчику. */
   app.post('/feedback', async (req, reply) => {
     const body = parse(zFeedback, req.body);
-    await prisma.feedback.create({ data: { userId: req.user.id, kind: body.kind, text: body.text } });
+    const fb = await prisma.feedback.create({ data: { userId: req.user.id, kind: body.kind, text: body.text } });
     if (telegram && env.FEEDBACK_CHAT_ID) {
       const who = req.user.username ? `@${req.user.username}` : req.user.name;
       const head = body.kind === 'bug' ? '🐞 Баг' : '💡 Идея';
-      telegram
-        .sendMessage(env.FEEDBACK_CHAT_ID, `${head} от ${who} (id ${req.user.telegramId}):\n\n${body.text}`)
-        .catch((e) => req.log.warn({ err: e }, 'не удалось переслать обратную связь'));
+      try {
+        const msg = await telegram.sendMessage(
+          env.FEEDBACK_CHAT_ID,
+          `${head} от ${who} (id ${req.user.telegramId}):\n\n${body.text}\n\n↩️ Ответьте на это сообщение — ответ уйдёт пользователю.`,
+        );
+        await prisma.feedback.update({ where: { id: fb.id }, data: { adminMessageId: msg.message_id } });
+      } catch (e) {
+        req.log.warn({ err: e }, 'не удалось переслать обратную связь');
+      }
     }
     return reply.code(201).send({ ok: true });
   });

@@ -1,22 +1,29 @@
 ﻿import { env } from './env.js';
 import { prisma } from './db.js';
 import { buildApp } from './app.js';
-import { createBot } from './bot.js';
+import { createBot, setupBotProfile } from './bot.js';
+import { startReminderScheduler } from './reminders/scheduler.js';
 
 const app = buildApp();
 const bot = createBot();
+let stopScheduler: (() => void) | undefined;
 
 async function main() {
   await app.listen({ port: env.API_PORT, host: '0.0.0.0' });
   if (env.DEV_AUTH_BYPASS) console.warn('⚠ DEV_AUTH_BYPASS включён: вход без Telegram разрешён.');
   if (bot) {
+    setupBotProfile(bot).catch((e) => console.error('Не удалось настроить меню бота:', e.message));
     bot.start({ onStart: (me) => console.log(`Бот @${me.username} запущен`) }).catch((e) => {
-      console.error('Не удалось запустить бота:', e);
+      console.error('Не удалось запустить бота:', e.message);
     });
+    stopScheduler = startReminderScheduler(bot.api, (msg, err) =>
+      err ? console.error(msg, err) : console.log(msg),
+    );
   }
 }
 
 async function shutdown() {
+  stopScheduler?.();
   await bot?.stop();
   await app.close();
   await prisma.$disconnect();

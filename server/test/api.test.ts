@@ -271,6 +271,37 @@ test('чужие данные недоступны', async () => {
   assert.equal((await call('GET', '/transactions/summary', undefined, BOB)).body.income, 0);
 });
 
+// ── Напоминания (планировщик с поддельным Telegram) ──
+
+test('планировщик: отправляет один раз, учитывает настройки и «Готово»', async () => {
+  const { runReminders } = await import('../src/reminders/scheduler.js');
+  const calls: { chat: string; text: string; kb: unknown }[] = [];
+  const fakeApi = {
+    sendMessage: async (chat: string, text: string, opts: { reply_markup?: unknown }) => {
+      calls.push({ chat, text, kb: opts.reply_markup });
+      return { message_id: calls.length };
+    },
+  } as never;
+
+  // У Алисы часовой пояс Asia/Almaty (UTC+5): 10:00 местного = 05:00 UTC
+  await call('PATCH', '/me', { settings: { notifications: { tasks: true, events: false, workouts: false } } });
+  const t = (await call('POST', '/tasks', { title: 'Купить <хлеб>', date: '2026-11-20', time: '10:00', remind: 'ontime' })).body;
+  await call('POST', '/tasks', { kind: 'event', title: 'Событие', date: '2026-11-20', time: '10:00', remind: 'ontime' });
+
+  assert.equal(await runReminders(fakeApi, new Date('2026-11-20T04:59:00Z')), 0, 'рано');
+  assert.equal(await runReminders(fakeApi, new Date('2026-11-20T05:00:30Z')), 1, 'событие выключено в настройках');
+  assert.equal(calls[0].chat, '1001');
+  assert.match(calls[0].text, /Купить &lt;хлеб&gt;/);
+  assert.match(JSON.stringify(calls[0].kb), new RegExp(`done:${t.id}:2026-11-20`));
+  assert.equal(await runReminders(fakeApi, new Date('2026-11-20T05:01:30Z')), 0, 'повторно не шлём');
+
+  // Выполненная задача не напоминает
+  const t2 = (await call('POST', '/tasks', { title: 'Уже сделано', date: '2026-11-20', time: '11:00', remind: 'ontime', status: 'done' })).body;
+  assert.equal(await runReminders(fakeApi, new Date('2026-11-20T06:00:30Z')), 0);
+  await call('DELETE', `/tasks/${t2.id}`);
+  await call('PATCH', '/me', { settings: { notifications: { tasks: false } } });
+});
+
 // ── Обратная связь ──
 
 test('обратная связь: сохраняется, проверяется', async () => {
