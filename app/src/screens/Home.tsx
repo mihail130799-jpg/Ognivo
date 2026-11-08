@@ -126,13 +126,13 @@ function workoutProgress(w: WorkoutDto) {
 }
 
 function WorkoutCard() {
-  const { today, settings, go } = useApp();
+  const { today, settings, openWorkout } = useApp();
   const { data, isLoading } = useWorkouts({ from: today, to: today });
   const w = data?.[0];
   const trainingDay = settings.trainingDays.includes(weekday(today));
 
   return (
-    <div className="card home-workout clickable" onClick={() => go('sport')}>
+    <div className="card home-workout clickable" onClick={() => openWorkout(today, w)}>
       <div className="muted">Тренировка</div>
       {isLoading ? (
         <Skeleton h={22} />

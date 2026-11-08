@@ -8,11 +8,13 @@ import { TransactionSheet } from './components/TransactionSheet';
 import { Home } from './screens/Home';
 import { Plan } from './screens/Plan';
 import { Money } from './screens/Money';
+import { Sport } from './screens/Sport';
+import { WorkoutSheet } from './components/WorkoutSheet';
 import { AppContext, useApp, type AppApi, type MoneyView } from './lib/appContext';
-import { useMe, useUpdateMe } from './lib/queries';
+import { useMe, useUpdateMe, useWorkouts } from './lib/queries';
 import { ApiError } from './lib/api';
 import { getTelegramName, systemColorScheme, tg } from './lib/telegram';
-import type { DateStr, TaskDto, TaskKind, ThemeMode, TransactionDto } from '@ognivo/shared';
+import type { DateStr, TaskDto, TaskKind, ThemeMode, TransactionDto, WorkoutDto } from '@ognivo/shared';
 
 function useTheme(mode: ThemeMode | undefined, animations: boolean | undefined) {
   useEffect(() => {
@@ -42,11 +44,10 @@ function useTheme(mode: ThemeMode | undefined, animations: boolean | undefined) 
 type SheetState =
   | { type: 'task'; kind?: TaskKind; date?: DateStr | null; task?: TaskDto }
   | { type: 'tx'; kind: 'expense' | 'income'; tx?: TransactionDto }
+  | { type: 'workout'; date: DateStr; workout?: WorkoutDto }
   | { type: 'quick' }
   | { type: 'settings' }
   | null;
-
-const TITLES: Record<Exclude<Tab, 'home'>, string> = { plan: 'План', money: 'Деньги', sport: 'Спорт' };
 
 export function App() {
   const me = useMe();
@@ -82,6 +83,7 @@ export function App() {
       openSettings: () => setSheet({ type: 'settings' }),
       openTask: (o) => setSheet({ type: 'task', ...o }),
       openTransaction: (kind, tx) => setSheet({ type: 'tx', kind, tx }),
+      openWorkout: (date, workout) => setSheet({ type: 'workout', date, workout }),
       moneyView,
       setMoneyView,
     };
@@ -123,12 +125,7 @@ export function App() {
         ) : activeTab === 'money' ? (
           <Money />
         ) : (
-          <>
-            <PageHeader title={TITLES[activeTab]} onSettings={ctx.openSettings} />
-            <div className="card">
-              <p className="muted">Этот раздел появится на следующих шагах этапа 4.</p>
-            </div>
-          </>
+          <Sport />
         )}
       </main>
 
@@ -139,7 +136,8 @@ export function App() {
 
       {sheet?.type === 'task' && <TaskSheet kind={sheet.kind} date={sheet.date} task={sheet.task} onClose={close} />}
       {sheet?.type === 'tx' && <TransactionSheet kind={sheet.kind} tx={sheet.tx} onClose={close} />}
-      {sheet?.type === 'quick' && <QuickAdd onPick={setSheet} go={ctx.go} />}
+      {sheet?.type === 'workout' && <WorkoutSheet date={sheet.date} workout={sheet.workout} onClose={close} />}
+      {sheet?.type === 'quick' && <QuickAdd onPick={setSheet} />}
       {sheet?.type === 'settings' && (
         <Sheet title="Настройки" onClose={close}>
           <p className="muted">Экран настроек появится на последнем шаге этапа 4.</p>
@@ -150,14 +148,15 @@ export function App() {
   );
 }
 
-function QuickAdd({ onPick, go }: { onPick: (s: SheetState) => void; go: AppApi['go'] }) {
+function QuickAdd({ onPick }: { onPick: (s: SheetState) => void }) {
   const { today, settings } = useApp();
+  const todayWorkout = useWorkouts({ from: today, to: today }).data?.[0];
   const items = [
     settings.sections.plan && { ic: '✅', title: 'Задача', sub: 'Дело на день или без даты', act: () => onPick({ type: 'task', kind: 'task', date: today }) },
     settings.sections.plan && { ic: '📅', title: 'Событие', sub: 'Встреча, запись, день рождения', act: () => onPick({ type: 'task', kind: 'event', date: today }) },
     settings.sections.money && { ic: '💸', title: 'Расход', sub: 'Покупка или платёж', act: () => onPick({ type: 'tx', kind: 'expense' }) },
     settings.sections.money && { ic: '💰', title: 'Доход', sub: 'Зарплата, подработка, возврат', act: () => onPick({ type: 'tx', kind: 'income' }) },
-    settings.sections.sport && { ic: '🏋️', title: 'Тренировка', sub: 'Составить план на день', act: () => { onPick(null); go('sport'); } },
+    settings.sections.sport && { ic: '🏋️', title: 'Тренировка', sub: todayWorkout ? 'Открыть сегодняшнюю' : 'Составить план на сегодня', act: () => onPick({ type: 'workout', date: today, workout: todayWorkout }) },
   ].filter(Boolean) as { ic: string; title: string; sub: string; act: () => void }[];
 
   return (

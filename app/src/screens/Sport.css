@@ -1,0 +1,162 @@
+.sport-chart {
+  background: radial-gradient(120% 90% at 100% 0%, var(--accent-soft), transparent 60%), var(--card);
+}
+.bars {
+  display: flex;
+  gap: 8px;
+  height: 130px;
+  align-items: stretch;
+}
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.bar-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.bar {
+  width: 100%;
+  border-radius: 8px;
+  background: var(--card-2);
+  transition: height 0.5s ease;
+}
+.bar-col span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.bar-col.today span {
+  color: var(--accent);
+  font-weight: 700;
+}
+.bar.on {
+  background: var(--accent);
+}
+.bar-col.today .bar {
+  outline: 1.5px solid var(--accent);
+}
+.sport-h {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.train-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.train-days button {
+  padding: 12px 0;
+  border-radius: 14px;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--muted);
+  transition: background 0.2s, color 0.2s;
+}
+.train-days button.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+
+.day-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+}
+.day-row.today {
+  border-color: var(--accent);
+}
+.day-date {
+  flex: none;
+  width: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.day-date span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.day-date b {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+.day-body {
+  flex: 1;
+  min-width: 0;
+}
+.day-body b {
+  display: block;
+  font-size: 15px;
+}
+.day-body b.rest {
+  color: var(--muted);
+  font-weight: 600;
+}
+.day-body span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.chev {
+  color: var(--faint);
+  font-size: 22px;
+}
+
+.sport-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+.sport-stats b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+}
+.sport-stats span {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.ex-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  font-size: 14px;
+}
+.ex-row + .ex-row {
+  border-top: 1px solid var(--line);
+}
+.ex-name {
+  flex: 1;
+  min-width: 0;
+}
+.ex-tag {
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-left: 8px;
+}
+.ex-best {
+  font-size: 12px;
+  white-space: nowrap;
+}

@@ -14,7 +14,8 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`/api${path}`, {
     ...init,
     headers: {
-      'Content-Type': 'application/json',
+      // Content-Type только при наличии тела: Fastify отклоняет пустое тело с типом JSON
+      ...(init.body != null ? { 'Content-Type': 'application/json' } : {}),
       'X-Telegram-Init-Data': getInitData(),
       ...init.headers,
     },

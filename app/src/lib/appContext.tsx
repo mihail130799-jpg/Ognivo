@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { Currency, DateStr, TaskDto, TaskKind, TransactionDto, UserSettings } from '@ognivo/shared';
+import type { Currency, DateStr, TaskDto, TaskKind, TransactionDto, UserSettings, WorkoutDto } from '@ognivo/shared';
 import type { Tab } from '../components/BottomNav';
 
 export type MoneyView = 'ops' | 'goals';
@@ -14,6 +14,8 @@ export interface AppApi {
   openSettings: () => void;
   openTask: (opts?: { kind?: TaskKind; date?: DateStr | null; task?: TaskDto }) => void;
   openTransaction: (kind: 'expense' | 'income', tx?: TransactionDto) => void;
+  /** Открыть тренировку на дату (существующую или новую с подобранным планом) */
+  openWorkout: (date: DateStr, workout?: WorkoutDto) => void;
   /** Какая вкладка «Денег» открыта */
   moneyView: MoneyView;
   setMoneyView: (v: MoneyView) => void;

@@ -13,6 +13,7 @@ import type {
   TransactionDto,
   UserSettings,
   WorkoutDto,
+  WorkoutSetDto,
 } from '@ognivo/shared';
 import { api } from './api';
 
@@ -275,4 +276,59 @@ export function useWorkouts(range: Range) {
 
 export function useExercises() {
   return useQuery({ queryKey: ['exercises'], queryFn: () => api<ExerciseInfo[]>('/exercises'), staleTime: Infinity });
+}
+
+export function useAddExercise() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { title: string; group: ExerciseInfo['group']; unit: ExerciseInfo['unit'] }) =>
+      api<ExerciseInfo>('/exercises', { method: 'POST', ...json(body) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['exercises'] }),
+  });
+}
+
+export function useDeleteExercise() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/exercises/${id}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['exercises'] }),
+  });
+}
+
+export interface WorkoutInput {
+  id?: string;
+  title: string;
+  date: string;
+  note?: string;
+  exercises: { exerciseId: string; sets: Omit<WorkoutSetDto, 'id'>[] }[];
+}
+
+/** Сохранить тренировку; finish — сразу отметить завершённой. */
+export function useSaveWorkout() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, finish, ...body }: WorkoutInput & { finish?: boolean }) => {
+      const w = id
+        ? await api<WorkoutDto>(`/workouts/${id}`, { method: 'PUT', ...json(body) })
+        : await api<WorkoutDto>('/workouts', { method: 'POST', ...json(body) });
+      return finish ? api<WorkoutDto>(`/workouts/${w.id}/finish`, { method: 'POST' }) : w;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['workouts'] }),
+  });
+}
+
+export function useReopenWorkout() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<WorkoutDto>(`/workouts/${id}/reopen`, { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['workouts'] }),
+  });
+}
+
+export function useDeleteWorkout() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/workouts/${id}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['workouts'] }),
+  });
 }

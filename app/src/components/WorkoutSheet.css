@@ -1,0 +1,81 @@
+.field-row.wide-first {
+  grid-template-columns: 1.4fr 1fr;
+}
+.wk-done {
+  background: var(--green-soft);
+  color: var(--green);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+.wk-ex {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.wk-ex-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.wk-ex-head b {
+  font-size: 15px;
+}
+.wk-x {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: var(--card-2);
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+.wk-x.small {
+  width: 26px;
+  height: 26px;
+  background: none;
+  color: var(--faint);
+}
+.wk-set {
+  display: grid;
+  grid-template-columns: 20px 1fr 1fr 24px 26px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.wk-set .span2 {
+  grid-column: span 2;
+}
+.wk-set-head {
+  font-size: 11px;
+  color: var(--faint);
+  margin-bottom: 4px;
+}
+.wk-n {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+.wk-in {
+  min-height: 40px;
+  padding: 8px 10px;
+  text-align: center;
+  border-radius: 12px;
+  font-size: 15px;
+}
+.wk-set.done .wk-in {
+  color: var(--muted);
+  background: var(--green-soft);
+}
+.wk-back {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+}
