@@ -8,6 +8,7 @@ import type {
   MeResponse,
   MoneySummary,
   SavingsGoalDto,
+  SavingsMoveDto,
   TaskDto,
   TransactionDto,
   UserSettings,
@@ -211,6 +212,59 @@ export function useDeleteTransaction() {
 
 export function useSavings() {
   return useQuery({ queryKey: ['savings'], queryFn: () => api<SavingsGoalDto[]>('/savings') });
+}
+
+export interface GoalInput {
+  id?: string;
+  title: string;
+  emoji: string;
+  target: number;
+  deadline: string | null;
+}
+
+export function useSaveGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: GoalInput) =>
+      id
+        ? api<SavingsGoalDto>(`/savings/${id}`, { method: 'PATCH', ...json(body) })
+        : api<SavingsGoalDto>('/savings', { method: 'POST', ...json(body) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['savings'] }),
+  });
+}
+
+export function useDeleteGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/savings/${id}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['savings'] }),
+  });
+}
+
+export function useGoalMoves(id: string | undefined) {
+  return useQuery({
+    queryKey: ['savings', id, 'moves'],
+    queryFn: () => api<SavingsMoveDto[]>(`/savings/${id}/moves`),
+    enabled: !!id,
+  });
+}
+
+export function useAddMove() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ goalId, ...body }: { goalId: string; amount: number; date: string; comment?: string }) =>
+      api<SavingsGoalDto>(`/savings/${goalId}/moves`, { method: 'POST', ...json(body) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['savings'] }),
+  });
+}
+
+export function useDeleteMove() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ goalId, moveId }: { goalId: string; moveId: string }) =>
+      api(`/savings/${goalId}/moves/${moveId}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['savings'] }),
+  });
 }
 
 // ── Спорт ──

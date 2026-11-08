@@ -69,3 +69,8 @@ export function plural(n: number, forms: [string, string, string]): string {
   if (b === 1) return forms[0];
   return forms[2];
 }
+
+/** Копейки → строка для поля ввода: 125050 → «1250,50», 100000 → «1000». */
+export function amountToInput(minor: number): string {
+  return minor % 100 ? (minor / 100).toFixed(2).replace('.', ',') : String(minor / 100);
+}

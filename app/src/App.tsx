@@ -7,11 +7,12 @@ import { TaskSheet } from './components/TaskSheet';
 import { TransactionSheet } from './components/TransactionSheet';
 import { Home } from './screens/Home';
 import { Plan } from './screens/Plan';
+import { Money } from './screens/Money';
 import { AppContext, useApp, type AppApi, type MoneyView } from './lib/appContext';
 import { useMe, useUpdateMe } from './lib/queries';
 import { ApiError } from './lib/api';
 import { getTelegramName, systemColorScheme, tg } from './lib/telegram';
-import type { DateStr, TaskDto, TaskKind, ThemeMode } from '@ognivo/shared';
+import type { DateStr, TaskDto, TaskKind, ThemeMode, TransactionDto } from '@ognivo/shared';
 
 function useTheme(mode: ThemeMode | undefined, animations: boolean | undefined) {
   useEffect(() => {
@@ -40,7 +41,7 @@ function useTheme(mode: ThemeMode | undefined, animations: boolean | undefined) 
 
 type SheetState =
   | { type: 'task'; kind?: TaskKind; date?: DateStr | null; task?: TaskDto }
-  | { type: 'tx'; kind: 'expense' | 'income' }
+  | { type: 'tx'; kind: 'expense' | 'income'; tx?: TransactionDto }
   | { type: 'quick' }
   | { type: 'settings' }
   | null;
@@ -51,7 +52,7 @@ export function App() {
   const me = useMe();
   const updateMe = useUpdateMe();
   const [tab, setTab] = useState<Tab>('home');
-  const [, setMoneyView] = useState<MoneyView>('ops');
+  const [moneyView, setMoneyView] = useState<MoneyView>('ops');
   const [sheet, setSheet] = useState<SheetState>(null);
 
   useTheme(me.data?.settings.theme, me.data?.settings.animations);
@@ -80,9 +81,11 @@ export function App() {
       },
       openSettings: () => setSheet({ type: 'settings' }),
       openTask: (o) => setSheet({ type: 'task', ...o }),
-      openTransaction: (kind) => setSheet({ type: 'tx', kind }),
+      openTransaction: (kind, tx) => setSheet({ type: 'tx', kind, tx }),
+      moneyView,
+      setMoneyView,
     };
-  }, [me.data]);
+  }, [me.data, moneyView]);
 
   if (me.isLoading) return <div className="splash">🔥</div>;
   if (!ctx) {
@@ -117,6 +120,8 @@ export function App() {
           <Home />
         ) : activeTab === 'plan' ? (
           <Plan />
+        ) : activeTab === 'money' ? (
+          <Money />
         ) : (
           <>
             <PageHeader title={TITLES[activeTab]} onSettings={ctx.openSettings} />
@@ -133,7 +138,7 @@ export function App() {
       <BottomNav active={activeTab} visible={visibleTabs} onChange={(t) => ctx.go(t)} />
 
       {sheet?.type === 'task' && <TaskSheet kind={sheet.kind} date={sheet.date} task={sheet.task} onClose={close} />}
-      {sheet?.type === 'tx' && <TransactionSheet kind={sheet.kind} onClose={close} />}
+      {sheet?.type === 'tx' && <TransactionSheet kind={sheet.kind} tx={sheet.tx} onClose={close} />}
       {sheet?.type === 'quick' && <QuickAdd onPick={setSheet} go={ctx.go} />}
       {sheet?.type === 'settings' && (
         <Sheet title="Настройки" onClose={close}>

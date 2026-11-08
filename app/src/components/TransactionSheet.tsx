@@ -3,7 +3,7 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, CURRENCY_SYMBOL, type CategoryKi
 import { Field, Segmented, Sheet, toast } from './ui';
 import { useDeleteTransaction, useSaveTransaction } from '../lib/queries';
 import { useApp } from '../lib/appContext';
-import { parseAmount } from '../lib/format';
+import { amountToInput, parseAmount } from '../lib/format';
 import { confirmAction } from '../lib/telegram';
 import './TransactionSheet.css';
 
@@ -13,9 +13,6 @@ interface Props {
   onClose: () => void;
 }
 
-function amountToInput(minor: number): string {
-  return (minor / 100).toString().replace('.', ',');
-}
 
 export function TransactionSheet({ kind: initialKind = 'expense', tx, onClose }: Props) {
   const { today, currency } = useApp();

@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { Currency, DateStr, TaskDto, TaskKind, UserSettings } from '@ognivo/shared';
+import type { Currency, DateStr, TaskDto, TaskKind, TransactionDto, UserSettings } from '@ognivo/shared';
 import type { Tab } from '../components/BottomNav';
 
 export type MoneyView = 'ops' | 'goals';
@@ -13,7 +13,10 @@ export interface AppApi {
   go: (tab: Tab, sub?: MoneyView) => void;
   openSettings: () => void;
   openTask: (opts?: { kind?: TaskKind; date?: DateStr | null; task?: TaskDto }) => void;
-  openTransaction: (kind: 'expense' | 'income') => void;
+  openTransaction: (kind: 'expense' | 'income', tx?: TransactionDto) => void;
+  /** Какая вкладка «Денег» открыта */
+  moneyView: MoneyView;
+  setMoneyView: (v: MoneyView) => void;
 }
 
 export const AppContext = createContext<AppApi | null>(null);
