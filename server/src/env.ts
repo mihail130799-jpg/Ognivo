@@ -7,6 +7,8 @@ const schema = z.object({
   BOT_TOKEN: z.string().default(''),
   WEBAPP_URL: z.string().default(''),
   FEEDBACK_CHAT_ID: z.string().default(''),
+  /** Папка собранного Mini App; сервер отдаёт его по тому же адресу, что и API */
+  STATIC_DIR: z.string().default('../app/dist'),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL не задан'),
   DEV_AUTH_BYPASS: z
     .string()

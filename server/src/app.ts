@@ -1,4 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import fastifyStatic from '@fastify/static';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { env } from './env.js';
 import { HttpError } from './lib/http.js';
 import { authPlugin } from './plugins/auth.js';
@@ -39,6 +42,26 @@ export function buildApp(opts: { logger?: boolean } = {}): FastifyInstance {
     },
     { prefix: '/api' },
   );
+
+  // Собранное приложение (app/dist) — тот же адрес, что и API. Только готовые файлы, без исходников.
+  if (env.STATIC_DIR && existsSync(path.join(env.STATIC_DIR, 'index.html'))) {
+    const root = path.resolve(env.STATIC_DIR);
+    app.register(fastifyStatic, {
+      root,
+      wildcard: false,
+      // Файлы с хешем в имени не меняются — кэшируем надолго; index.html — всегда свежий
+      setHeaders: (res, filePath) => {
+        res.header(
+          'Cache-Control',
+          filePath.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable' : 'no-cache',
+        );
+      },
+    });
+    app.setNotFoundHandler((req, reply) => {
+      if (req.url.startsWith('/api/') || req.method !== 'GET') return reply.code(404).send({ error: 'not_found' });
+      return reply.header('Cache-Control', 'no-cache').sendFile('index.html');
+    });
+  }
 
   return app;
 }
