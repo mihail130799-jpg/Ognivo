@@ -5,7 +5,7 @@ import { Segmented, Sheet, Toggle, toast } from './ui';
 import { useMe, useUpdateMe } from '../lib/queries';
 import { api, ApiError } from '../lib/api';
 import { useHomeScreen } from '../lib/useHomeScreen';
-import { confirmAction, getInitData, isInTelegram, openLink, requestWriteAccess } from '../lib/telegram';
+import { confirmAction, getInitData, isInTelegram, openLink, requestWriteAccess, telegramClientInfo } from '../lib/telegram';
 import './SettingsSheet.css';
 
 const APP_VERSION = '0.1';
@@ -192,11 +192,16 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
         </div>
       </Section>
 
-      {home.status !== 'unsupported' && home.status !== 'loading' && (
+      {isInTelegram && home.status !== 'loading' && (
         <Section title="Домашний экран">
           {home.status === 'added' ? (
             <p className="set-text muted" style={{ marginBottom: 0 }}>
               ✓ Ognivo уже на домашнем экране — открывается одним касанием, как обычное приложение.
+            </p>
+          ) : home.status === 'unsupported' ? (
+            <p className="set-text muted" style={{ marginBottom: 0 }}>
+              Эта версия Telegram не даёт добавить иконку прямо из Ognivo. Попробуйте так: нажмите «⋯» вверху справа →
+              «Добавить на экран „Домой“». Если такого пункта нет — обновите Telegram в App Store.
             </p>
           ) : (
             <>
@@ -236,7 +241,15 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
         </div>
       </Section>
 
-      <p className="set-version">Ognivo · v{APP_VERSION}</p>
+      <p className="set-version">
+        Ognivo · v{APP_VERSION}
+        {telegramClientInfo() && (
+          <>
+            <br />
+            {telegramClientInfo()} · ярлык: {home.status}
+          </>
+        )}
+      </p>
 
       {feedback && <FeedbackSheet kind={feedback} onClose={() => setFeedback(null)} />}
     </Sheet>

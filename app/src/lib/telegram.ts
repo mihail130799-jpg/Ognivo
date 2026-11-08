@@ -22,6 +22,8 @@ interface TgWebApp {
   openLink?(url: string): void;
   requestWriteAccess?(cb?: (granted: boolean) => void): void;
   isVersionAtLeast?(version: string): boolean;
+  version?: string;
+  platform?: string;
   // Bot API 8.0+: ярлык мини-приложения на домашнем экране
   addToHomeScreen?(): void;
   checkHomeScreenStatus?(cb: (status: HomeScreenStatus) => void): void;
@@ -88,6 +90,12 @@ export function openLink(url: string): void {
 export function requestWriteAccess(): Promise<boolean> {
   if (!isInTelegram || !tg?.requestWriteAccess || !tg.isVersionAtLeast?.('6.9')) return Promise.resolve(true);
   return new Promise((resolve) => tg!.requestWriteAccess!((granted) => resolve(granted)));
+}
+
+/** «Telegram ios · Bot API 8.0» — для диагностики в настройках. */
+export function telegramClientInfo(): string | null {
+  if (!isInTelegram || !tg) return null;
+  return `Telegram ${tg.platform ?? '?'} · Bot API ${tg.version ?? '?'}`;
 }
 
 /** Умеет ли клиент Telegram добавлять ярлык на домашний экран (iOS/Android, Telegram 11.5+). */
