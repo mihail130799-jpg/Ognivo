@@ -144,7 +144,7 @@ function Operations() {
               </div>
             </div>
             <div className="lbl">Разница</div>
-            <div className="money-big">{money(s.balance, currency, { sign: true })}</div>
+            <div className="money-big">{money(s.balance, currency)}</div>
           </>
         )}
         <p className="note">Разница считается только по внесённым записям и может не совпадать с остатком на банковской карте.</p>

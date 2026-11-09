@@ -217,7 +217,7 @@ function FinanceCard() {
         <Skeleton h={34} w="60%" />
       ) : (
         <>
-          <div className="money-big">{money(s.balance, currency, { sign: true })}</div>
+          <div className="money-big">{money(s.balance, currency)}</div>
           <div className="muted">
             <span className="inc">Доходы {money(s.income, currency)}</span> ·{' '}
             <span className="exp">Расходы {money(s.expense, currency)}</span>
