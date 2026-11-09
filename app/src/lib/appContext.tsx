@@ -9,6 +9,8 @@ export interface AppApi {
   name: string;
   settings: UserSettings;
   currency: Currency;
+  /** Валюта копилок (своя или как у финансов) */
+  savingsCurrency: Currency;
   /** Перейти в раздел (и, для «Денег», на нужную вкладку) */
   go: (tab: Tab, sub?: MoneyView) => void;
   openSettings: () => void;

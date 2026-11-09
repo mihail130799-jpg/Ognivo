@@ -13,7 +13,7 @@ const GOAL_EMOJIS = ['🏝', '🛡', '💻', '🚗', '🏠', '🎓', '💍', '�
 
 /** Создание и редактирование копилки (+ история пополнений). */
 export function GoalSheet({ goal, onClose }: { goal?: SavingsGoalDto; onClose: () => void }) {
-  const { currency, today } = useApp();
+  const { savingsCurrency: currency, today } = useApp();
   const save = useSaveGoal();
   const del = useDeleteGoal();
   const moves = useGoalMoves(goal?.id);
@@ -121,7 +121,7 @@ export function GoalSheet({ goal, onClose }: { goal?: SavingsGoalDto; onClose: (
 
 /** Пополнить или снять деньги из копилки. */
 export function MoveSheet({ goal, mode: initialMode, onClose }: { goal: SavingsGoalDto; mode: 'in' | 'out'; onClose: () => void }) {
-  const { currency, today } = useApp();
+  const { savingsCurrency: currency, today } = useApp();
   const add = useAddMove();
   const [mode, setMode] = useState(initialMode);
   const [amount, setAmount] = useState('');

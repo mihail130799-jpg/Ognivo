@@ -257,7 +257,7 @@ function monthsUntil(today: DateStr, deadline: DateStr): number {
 }
 
 function Goals() {
-  const { today, currency } = useApp();
+  const { today, savingsCurrency: currency } = useApp();
   const { data: goals, isLoading } = useSavings();
   const [edit, setEdit] = useState<{ goal?: SavingsGoalDto } | null>(null);
   const [move, setMove] = useState<{ goal: SavingsGoalDto; mode: 'in' | 'out' } | null>(null);

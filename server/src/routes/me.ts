@@ -39,6 +39,7 @@ const zSettingsPatch = z
   .object({
     theme: z.enum(['light', 'dark', 'system']).optional(),
     currency: z.enum(CURRENCIES).optional(),
+    savingsCurrency: z.enum(CURRENCIES).nullable().optional(),
     animations: bool,
     sections: z.object({ plan: bool, money: bool, sport: bool }).strict().optional(),
     homeBlocks: z

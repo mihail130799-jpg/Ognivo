@@ -76,6 +76,7 @@ export function App() {
       name: me.data.name || getTelegramName() || 'друг',
       settings: s,
       currency: s.currency,
+      savingsCurrency: s.savingsCurrency ?? s.currency,
       go: (t, sub) => {
         setTab(t);
         if (sub) setMoneyView(sub);

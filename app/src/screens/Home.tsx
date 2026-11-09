@@ -259,7 +259,7 @@ function FinanceCard() {
 // ── Копилка ──
 
 function SavingsCard() {
-  const { currency, go } = useApp();
+  const { savingsCurrency: currency, go } = useApp();
   const { data, isLoading } = useSavings();
   if (isLoading) return <div className="card"><Skeleton h={40} /></div>;
   // Показываем копилку, ближайшую к цели

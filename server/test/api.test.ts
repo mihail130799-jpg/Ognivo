@@ -90,12 +90,13 @@ test('изменение настроек сливается с текущими
   const r = await call('PATCH', '/me', {
     name: 'Алиса К.',
     timezone: 'Asia/Almaty',
-    settings: { currency: 'VND', homeBlocks: { savings: false }, trainingDays: [4, 0, 2, 2] },
+    settings: { currency: 'VND', savingsCurrency: 'RUB', homeBlocks: { savings: false }, trainingDays: [4, 0, 2, 2] },
   });
   assert.equal(r.status, 200);
   assert.equal(r.body.name, 'Алиса К.');
   assert.equal(r.body.timezone, 'Asia/Almaty');
   assert.equal(r.body.settings.currency, 'VND');
+  assert.equal(r.body.settings.savingsCurrency, 'RUB');
   assert.equal(r.body.settings.homeBlocks.savings, false);
   assert.equal(r.body.settings.homeBlocks.tasks, true);
   assert.deepEqual(r.body.settings.trainingDays, [0, 2, 4]);

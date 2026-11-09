@@ -10,6 +10,8 @@ import './SettingsSheet.css';
 
 const APP_VERSION = '0.1';
 
+const currencyOptions = (Object.keys(CURRENCY_SYMBOL) as Currency[]).map((c) => ({ value: c, label: CURRENCY_SYMBOL[c] }));
+
 function Section({ title, children, note }: { title: string; children: ReactNode; note?: ReactNode }) {
   return (
     <div className="card set-card">
@@ -145,11 +147,17 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           value={s.theme}
           onChange={(theme) => set({ theme })}
         />
-        <span className="field-label">Валюта</span>
+        <span className="field-label">Валюта доходов и расходов</span>
         <Segmented
-          options={(Object.keys(CURRENCY_SYMBOL) as Currency[]).map((c) => ({ value: c, label: CURRENCY_SYMBOL[c] }))}
+          options={currencyOptions}
           value={s.currency}
           onChange={(currency) => set({ currency })}
+        />
+        <span className="field-label">Валюта копилок</span>
+        <Segmented
+          options={currencyOptions}
+          value={s.savingsCurrency ?? s.currency}
+          onChange={(savingsCurrency) => set({ savingsCurrency })}
         />
         <Row label="Анимации (фонарики и переходы)" on={s.animations} onChange={(animations) => set({ animations })} />
       </Section>

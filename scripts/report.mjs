@@ -52,6 +52,7 @@ function userBlock(u) {
     settings = JSON.parse(u.settings || '{}');
   } catch {}
   const cur = settings.currency ?? 'RUB';
+  const savCur = settings.savingsCurrency ?? cur;
   const tz = u.timezone || 'Europe/Moscow';
 
   const tasks = all(
@@ -172,8 +173,8 @@ function userBlock(u) {
         const pct = g.target > 0 ? Math.floor((Number(g.saved) / Number(g.target)) * 100) : 0;
         return [
           `${esc(g.emoji)} ${esc(g.title)}${g.archived ? ' <span class="sub">(в архиве)</span>' : ''}`,
-          `${money(g.saved, cur)}<div class="sub">${g.moves} пополнений/снятий</div>`,
-          money(g.target, cur),
+          `${money(g.saved, savCur)}<div class="sub">${g.moves} пополнений/снятий</div>`,
+          money(g.target, savCur),
           `<div class="bar"><i style="width:${Math.min(pct, 100)}%"></i></div>${pct}%`,
           g.deadline ? day(g.deadline) : '—',
         ];

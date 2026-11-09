@@ -19,6 +19,8 @@ export const CURRENCY_SYMBOL: Record<Currency, string> = {
 export interface UserSettings {
   theme: ThemeMode;
   currency: Currency;
+  /** Валюта копилок; null — та же, что для доходов и расходов */
+  savingsCurrency: Currency | null;
   animations: boolean;
   sections: { plan: boolean; money: boolean; sport: boolean };
   homeBlocks: {
@@ -36,6 +38,7 @@ export interface UserSettings {
 export const DEFAULT_SETTINGS: UserSettings = {
   theme: 'system',
   currency: 'RUB',
+  savingsCurrency: null,
   animations: true,
   sections: { plan: true, money: true, sport: true },
   homeBlocks: { tasks: true, events: true, workout: true, finance: true, savings: true },
