@@ -16,3 +16,7 @@ secrets/
 
 # Инструменты (cloudflared и т.п.) — не в репозиторий
 .tools/
+
+# Ключ подписи Android (хранится в secrets/ и в секретах GitHub)
+*.jks
+*.keystore

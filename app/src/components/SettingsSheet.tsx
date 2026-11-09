@@ -3,9 +3,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CURRENCY_SYMBOL, type Currency, type DeepPartial, type UserSettings } from '@ognivo/shared';
 import { Segmented, Sheet, Toggle, toast } from './ui';
 import { useMe, useUpdateMe } from '../lib/queries';
-import { api, ApiError } from '../lib/api';
+import { api, ApiError, authHeaders } from '../lib/api';
+import { API_BASE, getToken, isNative, openExternal, setToken } from '../lib/platform';
 import { useHomeScreen } from '../lib/useHomeScreen';
-import { confirmAction, getInitData, isInTelegram, openLink, requestWriteAccess, telegramClientInfo } from '../lib/telegram';
+import { confirmAction, isInTelegram, openLink, requestWriteAccess, telegramClientInfo } from '../lib/telegram';
 import './SettingsSheet.css';
 
 const APP_VERSION = '0.1';
@@ -79,12 +80,13 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
   async function exportData() {
     try {
-      if (isInTelegram) {
+      // В Telegram и в Android-приложении файл присылает бот: скачать blob из WebView нельзя
+      if (isInTelegram || isNative) {
         await api('/export/send', { method: 'POST' });
         toast('Файл отправлен в чат с ботом');
         return;
       }
-      const res = await fetch('/api/export', { headers: { 'X-Telegram-Init-Data': getInitData() } });
+      const res = await fetch(`${API_BASE}/api/export`, { headers: authHeaders() });
       if (!res.ok) throw new Error();
       const url = URL.createObjectURL(await res.blob());
       const a = document.createElement('a');
@@ -114,6 +116,13 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
     } catch {
       toast('Не удалось удалить данные');
     }
+  }
+
+  async function logout() {
+    if (!(await confirmAction('Выйти из Ognivo на этом устройстве? Записи останутся в аккаунте.'))) return;
+    await api('/auth/logout', { method: 'POST' }).catch(() => {});
+    setToken(null);
+    await qc.resetQueries();
   }
 
   const updatedAt = me.dataUpdatedAt;
@@ -198,6 +207,11 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             Синхронизировать
           </button>
         </div>
+        {!isInTelegram && getToken() && (
+          <button className="btn ghost block" style={{ marginTop: 12 }} onClick={logout}>
+            Выйти
+          </button>
+        )}
       </Section>
 
       {isInTelegram && home.status !== 'loading' && (
@@ -236,7 +250,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
       <Section title="Данные">
         <p className="set-text muted">Данные сохраняются в вашем аккаунте и доступны на любом устройстве, где вы вошли в Telegram.</p>
-        <button className="set-link" onClick={() => openLink('/privacy.html')}>
+        <button className="set-link" onClick={() => (isNative ? openExternal(`${API_BASE}/privacy.html`) : openLink('/privacy.html'))}>
           Политика конфиденциальности <span>↗</span>
         </button>
         <div className="set-actions">

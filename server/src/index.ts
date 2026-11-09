@@ -1,8 +1,9 @@
-﻿import { env } from './env.js';
+import { env } from './env.js';
 import { prisma } from './db.js';
 import { buildApp } from './app.js';
 import { createBot, setupBotProfile } from './bot.js';
 import { startReminderScheduler } from './reminders/scheduler.js';
+import { setBotUsername } from './auth/appLogin.js';
 
 const app = buildApp();
 const bot = createBot();
@@ -13,7 +14,12 @@ async function main() {
   if (env.DEV_AUTH_BYPASS) console.warn('⚠ DEV_AUTH_BYPASS включён: вход без Telegram разрешён.');
   if (bot) {
     setupBotProfile(bot).catch((e) => console.error('Не удалось настроить меню бота:', e.message));
-    bot.start({ onStart: (me) => console.log(`Бот @${me.username} запущен`) }).catch((e) => {
+    bot.start({
+      onStart: (me) => {
+        setBotUsername(me.username);
+        console.log(`Бот @${me.username} запущен`);
+      },
+    }).catch((e) => {
       console.error('Не удалось запустить бота:', e.message);
     });
     stopScheduler = startReminderScheduler(bot.api, (msg, err) =>

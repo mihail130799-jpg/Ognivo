@@ -12,3 +12,7 @@ secrets
 .claude
 design
 *.jpg
+
+# Android-проект и исходники иконок серверу не нужны
+app/android
+app/assets

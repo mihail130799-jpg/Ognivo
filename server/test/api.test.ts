@@ -78,6 +78,69 @@ test('устаревшая подпись — 401', async () => {
   assert.equal((await call('GET', '/me', undefined, old)).status, 401);
 });
 
+// ── Вход в приложение через бота (Android, браузер) ──
+
+async function raw(method: string, url: string, headers: Record<string, string> = {}, body?: unknown) {
+  const res = await app.inject({ method: method as 'GET', url: `/api${url}`, headers, payload: body as object });
+  return { status: res.statusCode, headers: res.headers, body: res.body ? JSON.parse(res.body) : null };
+}
+
+test('вход через бота: код → подтверждение → токен (один раз) → выход', async () => {
+  const login = await import('../src/auth/appLogin.js');
+  assert.equal((await raw('POST', '/auth/login/start')).status, 503, 'без бота входа нет');
+  login.setBotUsername('ognivo_test_bot');
+
+  const start = await raw('POST', '/auth/login/start');
+  assert.equal(start.status, 200);
+  const { code, pin, url } = start.body;
+  assert.match(pin, /^\d{4}$/);
+  assert.equal(url, `https://t.me/ognivo_test_bot?start=login_${code}`);
+  assert.ok(url.length - 'https://t.me/ognivo_test_bot?start='.length <= 64, 'параметр start ≤ 64 символов');
+
+  assert.deepEqual((await raw('POST', '/auth/login/poll', {}, { code })).body, { status: 'pending' });
+  assert.equal((await raw('POST', '/auth/login/poll', {}, { code: 'x'.repeat(22) })).status, 410);
+
+  // Подтверждение в боте — от имени Алисы
+  const alice = (await call('GET', '/me')).body;
+  assert.equal(await login.confirmLoginRequest(code, alice.id), true);
+  assert.equal(await login.confirmLoginRequest(code, alice.id), false, 'повторно не подтверждается');
+
+  const ok = await raw('POST', '/auth/login/poll', {}, { code });
+  assert.equal(ok.body.status, 'ok');
+  const token = ok.body.token as string;
+  assert.equal((await raw('POST', '/auth/login/poll', {}, { code })).status, 410, 'токен выдаётся один раз');
+
+  const auth = { authorization: `Bearer ${token}` };
+  const me = await raw('GET', '/me', auth);
+  assert.equal(me.status, 200);
+  assert.equal(me.body.id, alice.id, 'тот же аккаунт, что и в Telegram');
+  assert.equal((await raw('GET', '/me', { authorization: 'Bearer wrong' })).status, 401);
+
+  assert.equal((await raw('POST', '/auth/logout', auth)).status, 200);
+  assert.equal((await raw('GET', '/me', auth)).status, 401, 'после выхода токен не работает');
+});
+
+test('отмена входа в боте', async () => {
+  const login = await import('../src/auth/appLogin.js');
+  const { code } = (await raw('POST', '/auth/login/start')).body;
+  await login.cancelLoginRequest(code);
+  assert.equal((await raw('POST', '/auth/login/poll', {}, { code })).status, 410);
+});
+
+test('CORS: только для приложения на Android', async () => {
+  const pre = await raw('OPTIONS', '/me', {
+    origin: 'https://localhost',
+    'access-control-request-method': 'GET',
+    'access-control-request-headers': 'authorization',
+  });
+  assert.equal(pre.status, 204);
+  assert.equal(pre.headers['access-control-allow-origin'], 'https://localhost');
+  assert.match(String(pre.headers['access-control-allow-headers']), /Authorization/);
+
+  const evil = await raw('GET', '/health', { origin: 'https://evil.example' });
+  assert.equal(evil.headers['access-control-allow-origin'], undefined);
+});
+
 test('профиль создаётся при первом входе, настройки по умолчанию', async () => {
   const r = await call('GET', '/me');
   assert.equal(r.status, 200);

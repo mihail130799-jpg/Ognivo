@@ -49,8 +49,19 @@ textarea {
   margin: 0 auto;
 }
 
+/* Отступы под системные панели. В Telegram их учитывает сам клиент, на Android (Capacitor) —
+   переменные --safe-area-inset-* или env(). */
+:root {
+  --inset-top: 0px;
+  --inset-bottom: 0px;
+}
+:root[data-native] {
+  --inset-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --inset-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+}
+
 .page {
-  padding: 22px var(--pad) 130px;
+  padding: calc(22px + var(--inset-top)) var(--pad) 130px;
   animation: page-in 0.35s ease;
 }
 

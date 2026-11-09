@@ -12,9 +12,12 @@ import { moneyRoutes } from './routes/money.js';
 import { savingsRoutes } from './routes/savings.js';
 import { sportRoutes } from './routes/sport.js';
 import { dataRoutes } from './routes/data.js';
+import { authPublicRoutes, authRoutes } from './routes/auth.js';
 
 export function buildApp(opts: { logger?: boolean } = {}): FastifyInstance {
   const app = Fastify({
+    // Перед сервером один прокси (Caddy): IP клиента — последний в X-Forwarded-For
+    trustProxy: (_addr: string, hop: number) => hop === 0,
     logger: opts.logger === false ? false : { level: env.NODE_ENV === 'development' ? 'info' : 'warn' },
   });
 
@@ -26,9 +29,27 @@ export function buildApp(opts: { logger?: boolean } = {}): FastifyInstance {
     return reply.code(500).send({ error: 'internal_error' });
   });
 
-  app.get('/api/health', async () => ({ ok: true }));
+  // CORS только для Android-приложения (Capacitor: https://localhost). Вход там — по токену
+  // в заголовке Authorization, без cookie, поэтому чужие сайты ничего не получат.
+  const origins = new Set(env.APP_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean));
+  app.addHook('onRequest', async (req, reply) => {
+    const origin = req.headers.origin;
+    if (!origin || !origins.has(origin) || !req.url.startsWith('/api/')) return;
+    reply.header('Access-Control-Allow-Origin', origin);
+    reply.header('Vary', 'Origin');
+    if (req.method === 'OPTIONS') {
+      reply
+        .header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE')
+        .header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+        .header('Access-Control-Max-Age', '86400');
+      return reply.code(204).send();
+    }
+  });
 
-  // Всё, что ниже, требует входа через Telegram.
+  app.get('/api/health', async () => ({ ok: true }));
+  app.register(authPublicRoutes, { prefix: '/api' });
+
+  // Всё, что ниже, требует входа: через Telegram или по токену приложения.
   app.register(
     async (scope) => {
       await authPlugin(scope);
@@ -39,6 +60,7 @@ export function buildApp(opts: { logger?: boolean } = {}): FastifyInstance {
       await scope.register(savingsRoutes);
       await scope.register(sportRoutes);
       await scope.register(dataRoutes);
+      await scope.register(authRoutes);
     },
     { prefix: '/api' },
   );

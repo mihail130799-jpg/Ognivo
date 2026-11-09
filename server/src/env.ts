@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -9,6 +9,8 @@ const schema = z.object({
   FEEDBACK_CHAT_ID: z.string().default(''),
   /** Папка собранного Mini App; сервер отдаёт его по тому же адресу, что и API */
   STATIC_DIR: z.string().default('../app/dist'),
+  /** Откуда разрешены запросы приложения (CORS), через запятую. Capacitor на Android — https://localhost */
+  APP_ORIGINS: z.string().default('https://localhost'),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL не задан'),
   DEV_AUTH_BYPASS: z
     .string()

@@ -14,7 +14,9 @@ import { SettingsSheet } from './components/SettingsSheet';
 import { AppContext, useApp, type AppApi, type MoneyView } from './lib/appContext';
 import { useMe, useUpdateMe, useWorkouts } from './lib/queries';
 import { ApiError } from './lib/api';
-import { getTelegramName, systemColorScheme, tg } from './lib/telegram';
+import { getTelegramName, isInTelegram, systemColorScheme, tg } from './lib/telegram';
+import { isNative } from './lib/platform';
+import { LoginScreen } from './components/LoginScreen';
 import type { DateStr, TaskDto, TaskKind, ThemeMode, TransactionDto, WorkoutDto } from '@ognivo/shared';
 
 function useTheme(mode: ThemeMode | undefined, animations: boolean | undefined) {
@@ -28,6 +30,13 @@ function useTheme(mode: ThemeMode | undefined, animations: boolean | undefined) 
         tg?.setBackgroundColor(bg);
       } catch {
         /* старые клиенты Telegram */
+      }
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+      if (isNative) {
+        // Цвет значков в строке состояния Android под тему
+        import('@capacitor/status-bar').then(({ StatusBar, Style }) =>
+          StatusBar.setStyle({ style: theme === 'light' ? Style.Light : Style.Dark }).catch(() => {}),
+        );
       }
     };
     apply();
@@ -94,6 +103,8 @@ export function App() {
   if (me.isLoading) return <div className="splash">🔥</div>;
   if (!ctx) {
     const unauthorized = me.error instanceof ApiError && me.error.status === 401;
+    // Вне Telegram (Android, браузер) — вход через бота
+    if (unauthorized && !isInTelegram) return <LoginScreen />;
     return (
       <div className="page">
         <PageHeader title="Ognivo" />

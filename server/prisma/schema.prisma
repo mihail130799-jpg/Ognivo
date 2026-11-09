@@ -34,6 +34,7 @@ model User {
   workouts     Workout[]
   feedback     Feedback[]
   reminderLogs ReminderLog[]
+  appSessions  AppSession[]
 }
 
 /// Задача или событие из раздела «План»
@@ -231,4 +232,25 @@ model ReminderLog {
   error  String?
 
   @@unique([userId, key])
+}
+
+// Вход в приложение вне Telegram (Android, браузер): приложение создаёт запрос,
+// пользователь подтверждает его в боте, приложение получает токен сессии.
+model LoginRequest {
+  id        String   @id // секретный код из ссылки t.me/<бот>?start=login_<id>
+  pin       String // короткий код, который показывается и в приложении, и в боте
+  userId    String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model AppSession {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String   @unique // sha256 от токена; сам токен хранится только на устройстве
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@index([userId])
 }

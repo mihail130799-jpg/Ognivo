@@ -1,9 +1,10 @@
-import { Bot } from 'grammy';
+import { Bot, InlineKeyboard } from 'grammy';
 import { occursOn, type Repeat } from '@ognivo/shared';
 import { env } from './env.js';
 import { prisma } from './db.js';
 import { hasWebApp, openAppKeyboard } from './reminders/keyboard.js';
 import { escapeHtml } from './reminders/plan.js';
+import { cancelLoginRequest, confirmLoginRequest, findLoginRequest, LOGIN_PREFIX } from './auth/appLogin.js';
 
 const HELP =
   'Ognivo — трекер дел, денег и тренировок.\n\n' +
@@ -28,15 +29,39 @@ export function createBot(): Bot | null {
     await next();
   });
 
-  bot.command('start', async (ctx) => {
-    const from = ctx.from!;
-    const name = [from.first_name, from.last_name].filter(Boolean).join(' ');
-    // Заводим профиль сразу — чтобы напоминания и выгрузка работали без лишних шагов
-    await prisma.user.upsert({
+  const upsertUser = (from: { id: number; first_name: string; last_name?: string; username?: string }) =>
+    prisma.user.upsert({
       where: { telegramId: String(from.id) },
-      create: { telegramId: String(from.id), name, username: from.username ?? null },
+      create: { telegramId: String(from.id), name: [from.first_name, from.last_name].filter(Boolean).join(' '), username: from.username ?? null },
       update: { username: from.username ?? null },
     });
+
+  bot.command('start', async (ctx) => {
+    const from = ctx.from!;
+    // Заводим профиль сразу — чтобы напоминания и выгрузка работали без лишних шагов
+    await upsertUser(from);
+
+    // Ссылка входа из приложения: t.me/<бот>?start=login_<код>
+    if (ctx.match.startsWith(LOGIN_PREFIX)) {
+      const code = ctx.match.slice(LOGIN_PREFIX.length);
+      const req = await findLoginRequest(code);
+      if (!req || req.userId) {
+        await ctx.reply('Эта ссылка для входа устарела. Нажмите «Войти через Telegram» в приложении ещё раз.');
+        return;
+      }
+      await ctx.reply(
+        '🔐 <b>Вход в приложение Ognivo</b>\n\n' +
+          `Код входа: <b>${req.pin}</b>\n\n` +
+          `Подтверждайте, только если вы сами нажали «Войти» и этот код сейчас у вас на экране. ` +
+          `После подтверждения приложение получит доступ ко всем вашим записям в Ognivo.`,
+        {
+          parse_mode: 'HTML',
+          reply_markup: new InlineKeyboard().text('✅ Подтвердить вход', `login:${code}`).text('Отмена', `nologin:${code}`),
+        },
+      );
+      return;
+    }
+
     const kb = openAppKeyboard();
     await ctx.reply(
       `Привет, ${escapeHtml(from.first_name)}! 🔥\n\nЯ Ognivo — трекер дел, денег и тренировок. ` +
@@ -47,6 +72,25 @@ export function createBot(): Bot | null {
   });
 
   bot.command('help', (ctx) => ctx.reply(HELP, { reply_markup: openAppKeyboard() }));
+
+  bot.callbackQuery(/^login:([\w-]+)$/, async (ctx) => {
+    const user = await upsertUser(ctx.from);
+    const ok = await confirmLoginRequest(ctx.match[1], user.id);
+    await ctx.answerCallbackQuery({ text: ok ? 'Вход подтверждён' : 'Ссылка устарела' });
+    await ctx
+      .editMessageText(
+        ok
+          ? '✅ Вход подтверждён. Вернитесь в приложение Ognivo — оно откроется само.'
+          : 'Эта ссылка для входа устарела. Нажмите «Войти через Telegram» в приложении ещё раз.',
+      )
+      .catch(() => {});
+  });
+
+  bot.callbackQuery(/^nologin:([\w-]+)$/, async (ctx) => {
+    await cancelLoginRequest(ctx.match[1]);
+    await ctx.answerCallbackQuery({ text: 'Отменено' });
+    await ctx.editMessageText('Вход отменён.').catch(() => {});
+  });
 
   // «✅ Готово» в напоминании
   bot.callbackQuery(/^done:([^:]+):(\d{4}-\d{2}-\d{2})$/, async (ctx) => {

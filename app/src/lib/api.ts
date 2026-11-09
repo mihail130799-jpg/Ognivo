@@ -1,4 +1,5 @@
-import { getInitData } from './telegram';
+import { getInitData, isInTelegram } from './telegram';
+import { API_BASE, getToken } from './platform';
 
 export class ApiError extends Error {
   constructor(
@@ -9,14 +10,21 @@ export class ApiError extends Error {
   }
 }
 
-/** Запрос к нашему API. Подпись Telegram (initData) передаётся в заголовке. */
+/** Заголовок входа: в Telegram — подпись initData, вне Telegram — токен приложения. */
+export function authHeaders(): Record<string, string> {
+  if (isInTelegram) return { 'X-Telegram-Init-Data': getInitData() };
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+/** Запрос к нашему API. */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}/api${path}`, {
     ...init,
     headers: {
       // Content-Type только при наличии тела: Fastify отклоняет пустое тело с типом JSON
       ...(init.body != null ? { 'Content-Type': 'application/json' } : {}),
-      'X-Telegram-Init-Data': getInitData(),
+      ...authHeaders(),
       ...init.headers,
     },
   });
