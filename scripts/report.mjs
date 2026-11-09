@@ -15,6 +15,7 @@ const outPath = process.argv[3] ?? path.join(root, 'secrets', 'report.html');
 
 const db = new DatabaseSync(dbPath, { readOnly: true });
 const all = (sql, ...p) => db.prepare(sql).all(...p);
+const hasAppSessions = !!db.prepare(`SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'AppSession'`).get();
 
 // ── форматирование ──
 const esc = (s) =>
@@ -82,6 +83,10 @@ function userBlock(u) {
   );
   const exercises = all(`SELECT * FROM Exercise WHERE userId = ? ORDER BY title`, u.id);
   const feedback = all(`SELECT * FROM Feedback WHERE userId = ? ORDER BY createdAt DESC`, u.id);
+  // Входы в Android-приложение (таблица есть в базах с версии 0.2.0)
+  const android = hasAppSessions
+    ? db.prepare(`SELECT COUNT(*) AS n, MAX(lastUsedAt) AS last, MIN(createdAt) AS first FROM AppSession WHERE userId = ?`).get(u.id)
+    : { n: 0 };
 
   // Последняя активность — самая поздняя дата создания/изменения среди всех записей
   const stamps = [u.updatedAt, ...tasks.map((t) => t.updatedAt), ...txs.map((t) => t.createdAt), ...goals.map((g) => g.createdAt), ...workouts.map((w) => w.updatedAt), ...habits.map((h) => h.createdAt)]
@@ -124,6 +129,11 @@ function userBlock(u) {
   <header>
     <h2>${esc(u.name)} ${u.username ? `<span class="muted">@${esc(u.username)}</span>` : ''}</h2>
     <p class="muted">Telegram ID ${esc(u.telegramId)} · первый вход ${dt(u.createdAt, tz)} · последняя активность ${last ? dt(last.getTime(), tz) : '—'} · пояс ${esc(tz)} · валюта ${esc(cur)}</p>
+    <p class="android">📱 Android-приложение: ${
+      android.n
+        ? `<b>да</b> · устройств: ${android.n} · первый вход ${dt(android.first, tz)} · последний раз ${dt(android.last, tz)}`
+        : 'не входил(а)'
+    }</p>
     <div class="stats">${counts.map(([n, c]) => `<div class="stat${c ? '' : ' zero'}"><b>${c}</b><span>${n}</span></div>`).join('')}</div>
   </header>
 
@@ -212,7 +222,7 @@ const html = `<!doctype html>
 main{max-width:980px;margin:0 auto}h1{margin:0 0 4px;font-size:26px}h1 span{color:var(--accent)}
 .muted,.sub{color:var(--muted)}.sub{font-size:12px;margin-top:2px}
 .user{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:22px}
-.user h2{margin:0 0 4px;font-size:21px}.user header p{margin:0 0 14px;font-size:13px}
+.user h2{margin:0 0 4px;font-size:21px}.user header p{margin:0 0 14px;font-size:13px}.user header p.android{margin-top:-8px;color:var(--text)}.android b{color:var(--inc)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
 .stat{background:var(--bg);border-radius:12px;padding:10px 12px}.stat b{display:block;font-size:22px;color:var(--accent)}
 .stat span{font-size:12px;color:var(--muted)}.stat.zero b{color:var(--muted)}
